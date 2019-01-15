@@ -4,7 +4,7 @@ author: "Miao Cai^[Department of Epidemiology and Biostatistics, Saint Louis Uni
 date: "`r Sys.Date()`"
 output:
   html_document:
-    theme: readable
+    theme: yeti
     toc: true
     toc_float: true
     number_sections: true
@@ -20,6 +20,64 @@ linkcolor: blue
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# Crash-related data
+
+## Historical data (yearly)
+
+- [FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)
+- [NHTSA]()
+
+
+## Real-time data (<= 1 hour)
+
+By state. For example [511pa](https://www.511pa.com/)
+
+
+
+
+
+
+# Traffic flow data
+
+## Historical data (yearly)
+
+- [FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)
+- [NHTSA]()
+
+## Real-time data (<= 5 minutes)
+
+By state. For example [511pa](https://www.511pa.com/)
+
+
+
+
+
+# Weather data
+
+## Historical (daily)
+
+## Real-time (<= 1 hour)
+
+
+
+Darksky API
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
