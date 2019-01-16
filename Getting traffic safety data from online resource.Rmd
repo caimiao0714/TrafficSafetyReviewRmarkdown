@@ -25,8 +25,34 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Historical data (yearly)
 
-- [FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)
-- [NHTSA]()
+- 
+- 
+
+### FMCSA|all truck crashes
+
+The Motor Carrier Crash Information can be downloaded on Federal Motor Carrier Safety Administration ([FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)). We download The FMCSA  Motor Carrier Crash data on January 15, 2019 and they were collected between December 2016 and December 2018.
+
+```{r}
+pacman::p_load(data.table, tidyverse)
+
+fmcsa = data.table::fread("data/Crash_2018Dec/2018Dec_crash.txt")
+
+fmcsa[, REPORT_DATE := lubridate::dmy(REPORT_DATE)]
+fmcsa[, ymonth:= paste0(substr(REPORT_DATE, 1, 4), substr(REPORT_DATE, 6, 7))]
+
+fmcsa %>% 
+  ggplot(aes(x = ymonth)) + geom_bar(fill = "lightblue") + 
+  xlab("Year and month") + ylab("The number of motor carrier crashes")
+  theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+### NHTSA|all fatal crashes
+
+[download](ftp://ftp.nhtsa.dot.gov/fars/)
+
+
 
 
 ## Real-time data (<= 1 hour)
@@ -38,16 +64,33 @@ By state. For example [511pa](https://www.511pa.com/)
 
 
 
+
+
+
 # Traffic flow data
 
 ## Historical data (yearly)
 
-- [FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)
-- [NHTSA]()
+[FHWA|to obtain AADT](https://www.fhwa.dot.gov/policyinformation/hpms/shapefiles.cfm)
+
+```{r FHWA}
+library(rgdal)
+mo <- readOGR("data/missouri2017/missouri2017.shp")
+
+t = foreign::read.dbf("data/missouri2017/missouri2017.dbf")
+```
+
 
 ## Real-time data (<= 5 minutes)
 
-By state. For example [511pa](https://www.511pa.com/)
+- State DoTs|loop detector
+- State DoTs|video frames
+- [HERE|Phone based](https://developer.here.com/documentation/traffic/topics_v6.1/flow.html)
+
+
+
+
+
 
 
 
@@ -56,6 +99,8 @@ By state. For example [511pa](https://www.511pa.com/)
 # Weather data
 
 ## Historical (daily)
+
+[NOAA]()
 
 ## Real-time (<= 1 hour)
 
