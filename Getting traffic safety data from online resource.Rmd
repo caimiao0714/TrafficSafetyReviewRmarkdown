@@ -1,6 +1,9 @@
 ---
-title: "Getting traffic safety data from online resources"
-author: "Miao Cai^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](miao.cai@slu.edu)]"
+title: "Vignette for traffic safety review"
+author: 
+  - Miao Cai^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
+  - Amir Mehdizadeh^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
+  - Fadel M. Megahed^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -18,70 +21,93 @@ linkcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 10, fig.retina = TRUE, fig.asp = 0.618, fig.align = "center", message = FALSE)
 ```
 
-# Crash-related data
+# Extracting transportation safety data from online sources
 
-## Historical data (yearly)
+## Crash-related data
 
-- 
-- 
+### Historical data (yearly)
 
-### FMCSA|all truck crashes
+- Federal Motor Carrier Safety Administration (FMCSA)|all truck crashes
+- National Highway Traffic Safety Administration (NHTSA)|all fatal crashes
 
-The Motor Carrier Crash Information can be downloaded on Federal Motor Carrier Safety Administration ([FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)). We download The FMCSA  Motor Carrier Crash data on January 15, 2019 and they were collected between December 2016 and December 2018.
+The Motor Carrier Crash Information can be downloaded on Federal Motor Carrier Safety Administration ([FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)). We download The FMCSA Motor Carrier Crash data on January 15, 2019 and they were collected between December 2016 and December 2018.
 
-```{r}
-pacman::p_load(data.table, tidyverse)
+```{r fig.width=6}
+pacman::p_load(data.table, tidyverse, purrr, foreign, knitr, kableExtra, darksky)
 
 fmcsa = data.table::fread("data/Crash_2018Dec/2018Dec_crash.txt")
 
 fmcsa[, REPORT_DATE := lubridate::dmy(REPORT_DATE)]
 fmcsa[, ymonth:= paste0(substr(REPORT_DATE, 1, 4), substr(REPORT_DATE, 6, 7))]
+fmcsamo = fmcsa[REPORT_STATE == "MO"& year(REPORT_DATE) == 2017]
 
-fmcsa %>% 
+fmcsamo %>% 
   ggplot(aes(x = ymonth)) + geom_bar(fill = "lightblue") + 
-  xlab("Year and month") + ylab("The number of motor carrier crashes")
+  xlab("Year and month") + ylab("The number of motor carrier crashes") + 
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+knitr::kable(fmcsamo[1:5,], format = "html",
+             caption = "All truck crashes in Missouri, 2017") %>% 
+  kable_styling(bootstrap_options = c("condensed")) %>% 
+  scroll_box(width = "100%", height = "300px")
 ```
 
 
-
-### NHTSA|all fatal crashes
-
-[download](ftp://ftp.nhtsa.dot.gov/fars/)
+All fatal crashes from 1975 to 2017 can be downloaded at National Highway Traffic Safety Administration (NHTSA) [official site](ftp://ftp.nhtsa.dot.gov/fars/)
 
 
+```{r}
+require(data.table)
 
+csvpath = './data/FARS2017NationalCSV/'
+csvname = list.files(path = csvpath, pattern = "*.csv")
+csvpathname = paste0(csvpath, csvname)
 
-## Real-time data (<= 1 hour)
+nhtsa = purrr::map(csvpathname, fread) %>% 
+  set_names(gsub(".csv", "", csvname))
+
+csvname
+```
+
+### Real-time data (<= 1 hour)
 
 By state. For example [511pa](https://www.511pa.com/)
 
 
-
-
-
-
-
-
-
-# Traffic flow data
-
-## Historical data (yearly)
+## Traffic flow data
+### Historical data (yearly)
 
 [FHWA|to obtain AADT](https://www.fhwa.dot.gov/policyinformation/hpms/shapefiles.cfm)
 
 ```{r FHWA}
-library(rgdal)
-mo <- readOGR("data/missouri2017/missouri2017.shp")
+# Using Missouri as an example
+fhwai = foreign::read.dbf("data/missouri2017/Missouri2017.dbf")
 
-t = foreign::read.dbf("data/missouri2017/missouri2017.dbf")
+knitr::kable(fmcsamo[1:5,], format = "html",
+             caption = "Historical traffic data in Missouri, 2017") %>% 
+  kable_styling(bootstrap_options = c("condensed")) %>% 
+  scroll_box(width = "100%", height = "300px")
+```
+
+```{r spatialnotes, eval=FALSE}
+list.files('data/missouri2017/', pattern='\\.shp$')
+
+# read spatial polygons
+sh1 = rgdal::readOGR("data/missouri2017")#YES
+sh2 = raster::shapefile("data/missouri2017/Missouri2017.shp") #YES
+
+
+# read spatial dataframes
+df1 = foreign::read.dbf("./data/missouri2017/Missouri2017.dbf")
+df2 = sf::read_sf(dsn = "./data/missouri2017/Missouri2017.shp")
+df3 = sf::st_read("./data/missouri2017/Missouri2017.shp")
 ```
 
 
-## Real-time data (<= 5 minutes)
+### Real-time data (<= 5 minutes)
 
 - State DoTs|loop detector
 - State DoTs|video frames
@@ -96,17 +122,138 @@ t = foreign::read.dbf("data/missouri2017/missouri2017.dbf")
 
 
 
-# Weather data
+## Weather data
 
-## Historical (daily)
+### Historical (daily)
 
-[NOAA]()
+[NOAA](https://www.ncdc.noaa.gov/)
 
-## Real-time (<= 1 hour)
+### Real-time (<= 1 hour)
+
+In this part, we show how to get both historical and real-time weather data using [DarkSky API](https://darksky.net/dev/docs/libraries). It can be used in both [Python](https://github.com/bitpixdigital/forecastiopy3) and [R](https://github.com/hrbrmstr/darksky). Before using the DarkSky API to get weather data, you need to register for a API key on [its official website](https://darksky.net/dev/register). The first 1000 API requests you make each day are free, but each API request over the 1000 daily limit will cost you $0.0001, which means a million extra API requests will cost you 100 USD. 
+
+To get weather data from the DarkSky API, you need to provide the following information on trucks:
+
+1. latitude
+2. longitude
+3. date and time
+
+Then you can pass these three parameters to the `get_forecast_for()` function in [`darksky`](https://github.com/hrbrmstr/darksky) package in R.
+
+```{r}
+source("private/DarkSkyAPIkey.R")
+Sys.setenv(DARKSKY_API_KEY = myDarkSkyAPIkey) # you need to use your own "myDarkSkyAPIkey"
+
+dat = structure(list(
+  latitude = c(41.3473127, 41.8189037, 32.8258477, 40.6776808, 40.2366043), 
+  longitude = c(-74.2850908, -73.0835104, -97.0306677, -75.1450753, -76.9367494), 
+  time = structure(c(1453101738, 1437508088, 1436195038, 1435243088, 1454270680), 
+  class = c("POSIXct", "POSIXt"), tzone = "UTC")), 
+  row.names = c(NA, -5L), class = "data.frame"
+)
+
+weather_dat <- pmap(
+   list(dat$latitude, dat$longitude, dat$time),
+   get_forecast_for)
+```
+
+## DarkSky returned data {.tabset .tabset-fade}
+
+For each datum,  data returned by the darksky API includes a list of 3 data.frames: 
+
+1. hourly weather data. 24 hourly observations for each 15 weather variables in that day.
+2. daily weather data. 1 observations for each 34 weather variables in that day.
+3. current weather data. 1 observations for each 15 weather variables at the assigned time point.
+
+The variables include: apparent (feels-like) temperature, atmospheric pressure, dew point, humidity, liquid precipitation rate, moon phase, nearest storm distance, nearest storm direction, ozone, precipitation type, snowfall, sun rise/set, temperature, text summaries, uv index, wind gust, wind speed, wind direction 
+
+### hourly weather
+
+```{r}
+kable(weather_dat[[1]]$hourly) %>% 
+  kable_styling(full_width = F) %>% 
+  column_spec(1, width = "20em") %>% 
+  scroll_box(height = "300px") #width = "100%", 
+```
+
+### daily weather
+
+```{r}
+kable(weather_dat[[1]]$daily) %>% 
+  kable_styling(bootstrap_options = c("condensed")) %>% 
+  scroll_box(height = "200px") 
+```
+
+### currently weather
+
+```{r}
+kable(weather_dat[[1]]$currently) %>% 
+  kable_styling(bootstrap_options = c("condensed")) %>% 
+  scroll_box(height = "100px") 
+```
 
 
+# Descriptive analytic tools used for understanding transportation safety data
 
-Darksky API
+## Clustering
+
+The following codes attempts to replicate the visual clustering approach from
+
+> Van Wijk, Jarke J., and Edward R. Van Selow. 1999. "Cluster and Calendar Based Visualization of Time Series Data." In Information Visualization, 1999.(Info Vis' 99) Proceedings. 1999 IEEE Symposium on, 4-9. IEEE.
+
+
+```{r}
+pacman::p_load(data.table,devtools,
+       ggplot2,plotly,extrafont,grDevices,RColorBrewer, ggthemes,
+       dplyr, stringr,tidyverse,readr,
+       rstudioapi,processx,
+       ClusterR)
+
+# install_github("jayjacobs/ggcal")
+library(ggcal)
+
+trafficflow.df <- read_csv("data/georgia-TFdata-station-121-5505-Yr2015.csv")
+trafficflow.df$Date <- as.Date(trafficflow.df$Date, format='%d-%b')
+
+opt = Optimal_Clusters_KMeans(
+  as.data.frame(trafficflow.df[,4:27]), max_clusters = 10, 
+  plot_clusters = T, criterion = 'distortion_fK', fK_threshold = 0.85,
+  initializer = 'optimal_init', tol_optimal_init = 0.2,
+  max_iters = 10000)
+num_clusters <- which.min(opt) # Based on the results, we should use k=2 clusters in kmeans
+km = KMeans_arma(as.data.frame(trafficflow.df[,4:27]), clusters = num_clusters, n_iter = 10000, seed_mode = "random_subset", 
+                 verbose = T, CENTROIDS = NULL)
+pr = predict_KMeans(data.frame(trafficflow.df[,4:27]), km)
+trafficflow.df$cluster.num <- as.vector(pr) %>% as.factor()
+table(trafficflow.df$cluster.num)
+```
+
+
+## Visualization
+
+```{r}
+summary.df <- group_by(trafficflow.df,cluster.num)
+summary.df <- summarise_all(summary.df,funs(mean))
+plot.df <- subset(summary.df, select = -c(2:4))
+plot.df <- melt(plot.df, value.name="Traffic.Flow",
+                        variable.name="Hour",id.vars="cluster.num")
+plot.df$cluster.num <- as.factor(plot.df$cluster.num)
+
+p1 <- ggplot(data = plot.df, aes(x = Hour, y = Traffic.Flow, group=cluster.num,
+                           color=cluster.num)) + geom_line(size=2) +
+  theme_bw() + 
+  theme(legend.position="top", axis.text.x=element_text(angle=90, hjust=1)) +
+  scale_color_brewer("Paired")
+p1
+```
+
+```{r}
+col.brewer.pal <- brewer.pal(11, "Paired")
+p2 <- ggcal(trafficflow.df$Date,trafficflow.df$cluster.num) + 
+  theme(legend.position="top") +
+  scale_fill_manual(values = c("1"=col.brewer.pal[1], "2"=col.brewer.pal[2]))
+p2
+```
 
 
 

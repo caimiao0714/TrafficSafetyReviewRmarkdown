@@ -3,4 +3,8 @@
 .RData
 .Ruserdata
 private/
-data/
+data/Crash_2018Dec
+data/FARS2017NationalCSV
+data/missouri2017
+Getting_traffic_safety_data_from_online_resource_cache/
+Getting_traffic_safety_data_from_online_resource_files/
