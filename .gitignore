@@ -1,10 +1,8 @@
+private/
+Data/
+Getting_traffic_safety_data_from_online_resource_cache/
+Getting_traffic_safety_data_from_online_resource_files/
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
-private/
-data/Crash_2018Dec
-data/FARS2017NationalCSV
-data/missouri2017
-Getting_traffic_safety_data_from_online_resource_cache/
-Getting_traffic_safety_data_from_online_resource_files/

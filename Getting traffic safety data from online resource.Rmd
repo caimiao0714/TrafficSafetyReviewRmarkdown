@@ -1,9 +1,10 @@
 ---
 title: "Vignette for traffic safety review"
 author: 
-  - Miao Cai^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
-  - Amir Mehdizadeh^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
-  - Fadel M. Megahed^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
+  - Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
+  - Amir Mehdizadeh, M.S.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
+  - Mohammad Ali Alamdar Yazdi, Ph.D.^[Carey Business School, Johns Hopkins University[mza0052@auburn.edu](mailto:mza0052@auburn.edu)]
+  - Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -29,12 +30,14 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 10, fig.retina = TR
 ## Crash-related data
 
 ### Historical data (yearly)
+Historical crash-related variables such as location, time, weather, road surface conditions, vehicles/ pedestrians involved in a crash, crash outcomes and/or root-causes can be extracted from these two databases. 
 
 - Federal Motor Carrier Safety Administration (FMCSA)|all truck crashes
 - National Highway Traffic Safety Administration (NHTSA)|all fatal crashes
 
-The Motor Carrier Crash Information can be downloaded on Federal Motor Carrier Safety Administration ([FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)). We download The FMCSA Motor Carrier Crash data on January 15, 2019 and they were collected between December 2016 and December 2018.
+**FMCSA database**
 
+The Motor Carrier Crash Information can be downloaded on Federal Motor Carrier Safety Administration ([FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)). This database contains information about the location, vehicle and severity of truck crashes (description about each feature can be found [here](data/Crash_Readme.txt)). We downloaded the FMCSA Motor Carrier Crash data on January 15, 2019 and they were collected between December 2016 and December 2018. The Following table and graph show the truck crashes information in Missouri, 2017. 
 ```{r fig.width=6}
 pacman::p_load(data.table, tidyverse, purrr, foreign, knitr, kableExtra, darksky)
 
@@ -53,11 +56,19 @@ knitr::kable(fmcsamo[1:5,], format = "html",
              caption = "All truck crashes in Missouri, 2017") %>% 
   kable_styling(bootstrap_options = c("condensed")) %>% 
   scroll_box(width = "100%", height = "300px")
+
+cat("Number of Observations and Variables:",dim(fmcsa))
+```
+For the mentioned time period, there were `r dim(fmcsa)[1]` observations and `r dim(fmcsa)[2]` variables. Further, the original format of this database is text (.txt). For more convenience, one can convert the format of this database to comma-separated values(.csv).
+
+```{r}
+fwrite(fmcsa, "data/fmcsa.csv")
 ```
 
 
-All fatal crashes from 1975 to 2017 can be downloaded at National Highway Traffic Safety Administration (NHTSA) [official site](ftp://ftp.nhtsa.dot.gov/fars/)
+**NHTSA database**
 
+All fatal crashes from 1975 to 2017 (FARS database) can be downloaded at National Highway Traffic Safety Administration (NHTSA) [official site](ftp://ftp.nhtsa.dot.gov/fars/). FARS dataset provides information about fatal crashes in three aspects: crashes, vehicles and people. The code chunk shows the different files that are accessible from this dataset. 
 
 ```{r}
 require(data.table)
@@ -72,46 +83,58 @@ nhtsa = purrr::map(csvpathname, fread) %>%
 csvname
 ```
 
+Besides, there is an exclusive database from 2000 to 2010, for trucks involved in fatal crashes (TIFA) which is built on FARS database and can be downloaded [here](http://www.cmisst.org/tools-resources/database-resources/dataset-collection/). FARS has provided data in csv format However, TIFA has published data in sas7bdat format. For more convienece, the provided code converts TIFA database to csv format files. 
+
+```{r}
+tifa2010 = haven::read_sas("data/TIFA_2010/TIFA_2010.sas7bdat")
+fwrite(tifa2010, "data/TIFA_2010/tifa2010.csv")
+```
+
+```{r}
+knitr::kable(tifa2010[1:5,], format = "html",
+             caption = "Fatal truck crashes provided by the TIFA, 2010") %>% 
+  kable_styling(bootstrap_options = c("condensed")) %>% 
+  scroll_box(width = "100%", height = "300px")
+```
+
+
 ### Real-time data (<= 1 hour)
 
-By state. For example [511pa](https://www.511pa.com/)
+Most of the states in the USA have activated 511 system. Basically, this system provides real-time travel information such as traffic, road and weather conditions. Currently this system provides accident/incident cases in a visual format. The following figure displays a screenshot of [Pennsylvania 511](https://www.511pa.com/website).
+
+![Pennsylvania 511 system, providing real-time information about accidents/incidents.](Figures/511pa.png)
 
 
 ## Traffic flow data
 ### Historical data (yearly)
-
-[FHWA|to obtain AADT](https://www.fhwa.dot.gov/policyinformation/hpms/shapefiles.cfm)
+[FHWA](https://www.fhwa.dot.gov/policyinformation/hpms/shapefiles.cfm) has provided Annual Average Daily Traffic (AADT) from 2011 to 2017. As an illustration, the following code chunk displays the first five observations of AADT data for Missouri 2017.
 
 ```{r FHWA}
 # Using Missouri as an example
 fhwai = foreign::read.dbf("data/missouri2017/Missouri2017.dbf")
 
-knitr::kable(fmcsamo[1:5,], format = "html",
+knitr::kable(fhwai[1:5,], format = "html",
              caption = "Historical traffic data in Missouri, 2017") %>% 
   kable_styling(bootstrap_options = c("condensed")) %>% 
   scroll_box(width = "100%", height = "300px")
 ```
 
-```{r spatialnotes, eval=FALSE}
-list.files('data/missouri2017/', pattern='\\.shp$')
 
-# read spatial polygons
-sh1 = rgdal::readOGR("data/missouri2017")#YES
-sh2 = raster::shapefile("data/missouri2017/Missouri2017.shp") #YES
-
-
-# read spatial dataframes
-df1 = foreign::read.dbf("./data/missouri2017/Missouri2017.dbf")
-df2 = sf::read_sf(dsn = "./data/missouri2017/Missouri2017.shp")
-df3 = sf::st_read("./data/missouri2017/Missouri2017.shp")
+The downloaded “shape files” can be converted to different data formats (e.g., .csv) using the following R code.
+```{r}
+fwrite(fhwai, "data/missouri2017/fhwai.csv")
 ```
-
 
 ### Real-time data (<= 5 minutes)
 
+There are several sources for getting real-time traffic data. Some of the states in the USA are equipped with loop detectors and video cameras. Departments of Transportation (DoT) can provide this data. Further, HERE website also provides near real-time traffic data with the limitation of x APIs per day for free. Later, a detailed instruction for getting this data form HERE website is provided. 
+
 - State DoTs|loop detector
 - State DoTs|video frames
-- [HERE|Phone based](https://developer.here.com/documentation/traffic/topics_v6.1/flow.html)
+
+**HERE Website**
+
+[HERE|Phone based](https://developer.here.com/documentation/traffic/topics_v6.1/flow.html)
 
 
 
@@ -195,12 +218,19 @@ kable(weather_dat[[1]]$currently) %>%
 
 # Descriptive analytic tools used for understanding transportation safety data
 
-## Clustering
+## An example of clustering
 
 The following codes attempts to replicate the visual clustering approach from
 
 > Van Wijk, Jarke J., and Edward R. Van Selow. 1999. "Cluster and Calendar Based Visualization of Time Series Data." In Information Visualization, 1999.(Info Vis' 99) Proceedings. 1999 IEEE Symposium on, 4-9. IEEE.
 
+A brief example of applying EDA methods on traffic data is provided here. The goal of this example is to illustrate the efficiency of the mentioned tools in the transportation context. There is no predetermined way to utilize these methods. The efficiency of each method highly depends on the nature of the problem. Hence, the challenge is to choose the right tool which fits the best.
+
+### Collecting Data
+Hourly vehicle counts data is used in this example. It provides the number of vehicles which passed along a particular segment of a road in one hour. Data is extracted from the Georgia Department of Transportation (GDoT) (Georgia Department of Transportation, 2015) for 2015 from station 121-5505 which located in Atlanta. GDoT provides data in separate sheets for each month. After extracting and cleaning data, it was combined to one sheet with 365 rows (days) and 24 columns (hours). Data can be downloaded from [GDoT](http://geocounts.com/gdot/).
+
+###Clustering
+It is almost impossible to understand raw data and also discover interesting patterns in it by just looking at 8760 (370 * 24) data cells. Hence, K-means clustering method is utilized here to present data in a more understandable format. K-means clustering is a common technique to explore data and discover patterns by grouping similar data to predefined (k) number of clusters. K-means clustering aims to group data into k clusters in a way to minimize the within-cluster sum of squares (WCSS). To find the optimal number of clusters, we have used a method that was suggested  by [Pham et al. (2005)](https://journals.sagepub.com/doi/abs/10.1243/095440605X8298?casa_token=Dxd8Ny3CIVwAAAAA%3ARo-nbplezRozrmMehzua_ZbbbTp7O9xFPXFGu0JULHsZwDzjSJNkMiY73-_mTMKbWE2ntgOkzzE). According to the following graph two is the best number of clusters to group this data.
 
 ```{r}
 pacman::p_load(data.table,devtools,
@@ -229,8 +259,18 @@ table(trafficflow.df$cluster.num)
 ```
 
 
-## Visualization
+### Visualization
+Now, k-means clustering can be applied. The output of this step is a column which its value is either one or two,indicating that each row of data (day) belongs to cluster one or two. Now data is divided into two groups. However, still we need to transfer data to a visual format to somehow validate and guide the clustering process. Since our data contains temporal information, we have used Cluster Calendar View visualization technique which is introduced by [Van Wijk and Van Selow (1999)](https://ieeexplore.ieee.org/abstract/document/801851). In this technique, a calendar represents the temporal information of data and by using color coding, differences between clusters are distinguished. The following graph shows a cluster calendar view for our data. It clearly has found meaningful patterns in the vehicle counts data. Weekends and weekdays have different traffic patterns. Besides, it has captured some of the holidays. For example, the 4th of July (Independence Day) which is a weekday, is colored by light blue. It means that this day has a similar traffic pattern with weekends. In addition, the clustering method has identified other holidays like Martin Luther King Day, Memorial Day, Labor Day, Thanksgiving Day and Christmas Day.
 
+```{r}
+col.brewer.pal <- brewer.pal(11, "Paired")
+p2 <- ggcal(trafficflow.df$Date,trafficflow.df$cluster.num) + 
+  theme(legend.position="top") +
+  scale_fill_manual(values = c("1"=col.brewer.pal[1], "2"=col.brewer.pal[2]))
+p2
+```
+
+Furthermore, a line chart (following graph) is used to show the average hourly traffic data for the two clusters. Results show that each cluster has different peaks and valleys. On the weekdays, 7 AM and 4 PM have the greatest number of vehicles which can be explained by the official working hours. On the other hand, on weekends, the traffic peak is around 1 PM which maybe refers to some people going out for lunch.
 ```{r}
 summary.df <- group_by(trafficflow.df,cluster.num)
 summary.df <- summarise_all(summary.df,funs(mean))
@@ -247,13 +287,8 @@ p1 <- ggplot(data = plot.df, aes(x = Hour, y = Traffic.Flow, group=cluster.num,
 p1
 ```
 
-```{r}
-col.brewer.pal <- brewer.pal(11, "Paired")
-p2 <- ggcal(trafficflow.df$Date,trafficflow.df$cluster.num) + 
-  theme(legend.position="top") +
-  scale_fill_manual(values = c("1"=col.brewer.pal[1], "2"=col.brewer.pal[2]))
-p2
-```
+To sum up, it seems that K-means clustering method was very efficient here. We applied raw data as inputs to this method and as outputs we could discover patterns (weekdays and weekends traffic patterns) and also with the help of visualization technique we obtained a considerable information about the data.
+
 
 
 
