@@ -1,5 +1,5 @@
 ---
-title: "Vignette for traffic safety review"
+title: "A vignette for the traffic safety review paper"
 author: 
   - Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
   - Amir Mehdizadeh, M.S.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
@@ -22,7 +22,7 @@ linkcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 10, fig.retina = TRUE, fig.asp = 0.618, fig.align = "center", message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 10, fig.asp = 0.618, fig.align = "center", message = FALSE)
 ```
 
 # Extracting transportation safety data from online sources
@@ -62,7 +62,7 @@ cat("Number of Observations and Variables:",dim(fmcsa))
 For the mentioned time period, there were `r dim(fmcsa)[1]` observations and `r dim(fmcsa)[2]` variables. Further, the original format of this database is text (.txt). For more convenience, one can convert the format of this database to comma-separated values(.csv).
 
 ```{r}
-fwrite(fmcsa, "data/fmcsa.csv")
+data.table::fwrite(fmcsa, "data/fmcsa.csv")
 ```
 
 
@@ -87,7 +87,7 @@ Besides, there is an exclusive database from 2000 to 2010, for trucks involved i
 
 ```{r}
 tifa2010 = haven::read_sas("data/TIFA_2010/TIFA_2010.sas7bdat")
-fwrite(tifa2010, "data/TIFA_2010/tifa2010.csv")
+data.table::fwrite(tifa2010, "data/TIFA_2010/tifa2010.csv")
 ```
 
 ```{r}
@@ -116,13 +116,13 @@ fhwai = foreign::read.dbf("data/missouri2017/Missouri2017.dbf")
 knitr::kable(fhwai[1:5,], format = "html",
              caption = "Historical traffic data in Missouri, 2017") %>% 
   kable_styling(bootstrap_options = c("condensed")) %>% 
-  scroll_box(width = "100%", height = "300px")
+  scroll_box(width = "100%", height = "200px")
 ```
 
 
 The downloaded “shape files” can be converted to different data formats (e.g., .csv) using the following R code.
 ```{r}
-fwrite(fhwai, "data/missouri2017/fhwai.csv")
+data.table::fwrite(fhwai, "data/missouri2017/fhwai.csv")
 ```
 
 ### Real-time data (<= 5 minutes)
@@ -180,7 +180,7 @@ weather_dat <- pmap(
    get_forecast_for)
 ```
 
-## DarkSky returned data {.tabset .tabset-fade}
+#### DarkSky returned data {.tabset .tabset-fade}
 
 For each datum,  data returned by the darksky API includes a list of 3 data.frames: 
 
@@ -190,7 +190,7 @@ For each datum,  data returned by the darksky API includes a list of 3 data.fram
 
 The variables include: apparent (feels-like) temperature, atmospheric pressure, dew point, humidity, liquid precipitation rate, moon phase, nearest storm distance, nearest storm direction, ozone, precipitation type, snowfall, sun rise/set, temperature, text summaries, uv index, wind gust, wind speed, wind direction 
 
-### hourly weather
+##### hourly weather
 
 ```{r}
 kable(weather_dat[[1]]$hourly) %>% 
@@ -199,7 +199,7 @@ kable(weather_dat[[1]]$hourly) %>%
   scroll_box(height = "300px") #width = "100%", 
 ```
 
-### daily weather
+##### daily weather
 
 ```{r}
 kable(weather_dat[[1]]$daily) %>% 
@@ -207,7 +207,7 @@ kable(weather_dat[[1]]$daily) %>%
   scroll_box(height = "200px") 
 ```
 
-### currently weather
+##### currently weather
 
 ```{r}
 kable(weather_dat[[1]]$currently) %>% 
@@ -229,7 +229,7 @@ A brief example of applying EDA methods on traffic data is provided here. The go
 ### Collecting Data
 Hourly vehicle counts data is used in this example. It provides the number of vehicles which passed along a particular segment of a road in one hour. Data is extracted from the Georgia Department of Transportation (GDoT) (Georgia Department of Transportation, 2015) for 2015 from station 121-5505 which located in Atlanta. GDoT provides data in separate sheets for each month. After extracting and cleaning data, it was combined to one sheet with 365 rows (days) and 24 columns (hours). Data can be downloaded from [GDoT](http://geocounts.com/gdot/).
 
-###Clustering
+### Clustering
 It is almost impossible to understand raw data and also discover interesting patterns in it by just looking at 8760 (370 * 24) data cells. Hence, K-means clustering method is utilized here to present data in a more understandable format. K-means clustering is a common technique to explore data and discover patterns by grouping similar data to predefined (k) number of clusters. K-means clustering aims to group data into k clusters in a way to minimize the within-cluster sum of squares (WCSS). To find the optimal number of clusters, we have used a method that was suggested  by [Pham et al. (2005)](https://journals.sagepub.com/doi/abs/10.1243/095440605X8298?casa_token=Dxd8Ny3CIVwAAAAA%3ARo-nbplezRozrmMehzua_ZbbbTp7O9xFPXFGu0JULHsZwDzjSJNkMiY73-_mTMKbWE2ntgOkzzE). According to the following graph two is the best number of clusters to group this data.
 
 ```{r}
