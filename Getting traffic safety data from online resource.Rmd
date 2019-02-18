@@ -1,5 +1,5 @@
 ---
-title: "A vignette for the Transportation safety Review Paper"
+title: "A Vignette for the Transportation Safety Review Paper"
 author: 
   - Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
   - Amir Mehdizadeh, M.S.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
@@ -54,28 +54,29 @@ knitr::opts_chunk$set(
 #devtools::install_github("jayjacobs/ggcal")
 pacman::p_load(
   data.table, tidyverse, foreign, darksky, DT, 
-  ClusterR, RColorBrewer, rmdformats, ggcal)
+  ClusterR, RColorBrewer, rmdformats, ggcal, gtools)
 ```
 
-This vignette serves as the supplementary materials to create reproducible examples provided in a detailed review on transportation safety research by Qiong et al.
+In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This vignette serves as the supplementary materials to create reproducible examples in the manuscript **Bridging the Gap between Transportation Safety Research and its Incorporation inOptimization Models: a Detailed Review and Perspective**. Submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_. 
 
-> Qiong Hu, Amir Mehdizadeh, Nasrin Mohabbati Kalejahi, Mohammad Ali Alamdar Yazdi, Miao Cai,Aleksandr Vinel, Steven E. Rigdon, Karen C. Davis, Fadel M. Megahe. **Bridging the Gap between Transportation Safety Research and its Incorporation inOptimization Models: a Detailed Review and Perspective**. Submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_.
+This vignette includes examples on the following five aspects:
 
-The vignette includes example on five aspects:
+1. **Bibliographic analysis**:  Bibliometric Summary for Transportation Safety, Bibliographic Network Matrices - Journal Names, keyword co-occurrences network, a Conceptual Structure Map
+2. **Extracting online transportation safety data**: Crash-related data, traffic flow data, and weather data.
+3. **Descriptive analytic tools**: data visualization and clustering
+5. **An example of clustering**
+5. **Statistical methods**: logistic regression and Poisson regression
 
-1. Bibliographic analysis
-2. Extracting online transportation safety data
-3. Descriptive analytic tools
-4. Data visualization
-5. Statistical methods
+To maximize the readability of this vignette, we hided all R codes by default, but readers can look into any code by clicking the `code` button.
+
 
 
 Bibliographic analysis
-===========================
+======================
 To perform a quick bibliometric analysis on Web of Science Data obtained using the following combination of words without limiting the document type, years, language. 
 
 ```
-TOPIC: ("hazmat transportation" OR "real-time crash prediction" OR ("vehicle routing" AND safety))
+("hazmat transportation" OR "real-time crash prediction" OR ("vehicle routing" AND safety))
 ```
 The search was performed using WoS Core Collection Resulted in the download of a plain txt file containing the full record with cited references for 992 results (7/30/2018 - 11:08 am ET)
 
@@ -83,12 +84,11 @@ The search was performed using WoS Core Collection Resulted in the download of a
 
 ## Bibliometric Summary for Transportation Safety
 
-```{r}
+```{r warning=FALSE}
 pacman::p_load(bibliometrix,tidyverse,data.table,rvest) 
 
 df.trans.safety <- readFiles("data/savedrecs.txt")
 M <-convert2df(df.trans.safety)
-
 
 # Bibliometric Analysis (Per the Bibliometrix Guide)
 results <- biblioAnalysis(M, sep = ";")
@@ -104,9 +104,6 @@ plot(x = results, k = 10, pause = FALSE)
 ## Bibliographic Network Matrices - Journal Names
 
 ```{r}
-# Bibliographic Network Matrices
-#-------------------------------
-# [1] Sources - i.e. Journal Names
 NetMatrix <- biblioNetwork(M, analysis = "coupling", 
                            network = "sources", 
                            sep = ";")
@@ -122,17 +119,15 @@ net=networkPlot(NetMatrix,  normalize = "salton",
 ## keyword co-occurrences network
 
 ```{r}
-#  [2] Create keyword co-occurrences network
-NetMatrix <- biblioNetwork(M, analysis = "co-occurrences", network = "keywords", sep = ";")
-# Plot the network
-net=networkPlot(NetMatrix, normalize="salton", 
-                weighted=NULL, n = 60, 
-                Title = "Keyword Co-Occurrences", 
-                type = "auto", size=15,size.cex=T,
-                remove.multiple=TRUE,labelsize=0.75,
-                label.n=60,label.cex=F,
-                cluster="optimal",edges.min = 5, label.color = TRUE,
-                halo = TRUE)
+NetMatrix <- biblioNetwork(
+  M, analysis = "co-occurrences", network = "keywords", sep = ";")
+
+net=networkPlot(
+  NetMatrix, normalize="salton", weighted=NULL, n = 60,
+  Title = "Keyword Co-Occurrences", type = "auto", 
+  size=15, size.cex=T, remove.multiple=TRUE,labelsize=0.75,
+  label.n=60,label.cex=F, cluster="optimal",edges.min = 5, 
+  label.color = TRUE, halo = TRUE)
 netstat <- networkStat(NetMatrix)
 out <- capture.output(summary(netstat, k=60))
 cat("Network Statistics",
@@ -142,14 +137,16 @@ cat("Network Statistics",
 
 ## a Conceptual Structure Map
 
+Creating a Conceptual Structure Map from the Titles Using the MCA Method with terms mentioned at least 25 times in the title
+
 ```{r}
-# [3] Creating a Conceptual Structure Map from the Titles
-# Using the MCA Method with terms mentioned at least 25
-# times in the title
-CS <- conceptualStructure(M,field="ID_TM", method="MCA", 
-                          minDegree=20, k.max=5, labelsize=15,
-                          documents = 856)
+CS <- conceptualStructure(
+  M,field="ID_TM", method="MCA", minDegree=20, 
+  k.max=5, labelsize=15, documents = 856)
 ```
+
+
+
 
 
 
@@ -170,7 +167,7 @@ Historical crash-related variables such as location, time, weather, road surface
 
 The Motor Carrier Crash Information can be downloaded on Federal Motor Carrier Safety Administration ([FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)). This database contains information about the location, vehicle and severity of truck crashes (description about each feature can be found [here](data/Crash_Readme.txt)). We downloaded the FMCSA Motor Carrier Crash data on January 15, 2019 and they were collected between December 2016 and December 2018. The Following table and graph show the truck crashes information in Missouri, 2017. 
 
-```{r fig.width=6,fig.cap='The number of motor carrier crashes by year and month in Missouri 2017'}
+```{r fig.width=6,fig.cap='The number of motor carrier crashes by year and month in Missouri 2017',fig.align='center'}
 fmcsa = data.table::fread("data/Crash_2018Dec/2018Dec_crash.txt")
 
 fmcsa[, REPORT_DATE := lubridate::dmy(REPORT_DATE)]
@@ -271,41 +268,49 @@ data.table::fwrite(fhwai, "data/missouri2017/fhwai.csv")
 
 ### Real-time data (<= 5 minutes)
 
-There are several sources for getting real-time traffic data. Some of the states in the USA are equipped with loop detectors and video cameras. Departments of Transportation (DoT) can provide this data. Further, HERE website also provides near real-time traffic data with the limitation of x APIs per day for free. Later, a detailed instruction for getting this data form HERE website is provided. 
+There are several sources for getting real-time traffic data. Some of the states in the USA are equipped with loop detectors and video cameras. Departments of Transportation (DoT) can provide this data. 
 
-- State DoTs|loop detector
-- State DoTs|video frames
+Further, [HERE](https://www.here.com/) website also provides near real-time traffic data with the limitation of 250,000 APIs per month for free. The [HERE Traffic API ](https://developer.here.com/documentation/traffic/topics/what-is.html) provides traffic flow and incidents information. It also allows the users to request traffic map tiles. The HERE Traffic API provides four types of traffic data:
 
-**HERE Website**
+- _Traffic Incident Data_: the type and location of each traffic incident, status, start and end time, and other relevant data
+- _Traffic Map Tile Overlays (Traffic Tiles)_: pre-rendered map tile overlays with traffic information
+- _Traffic Flow Data_: real-time traffic flow data, including speed, congestion, geometry of the road segments
+- _Traffic Flow Availability_: traffic flow information, excluding incidents in an area
 
-[HERE|Phone based](https://developer.here.com/documentation/traffic/topics_v6.1/flow.html)
+```{r eval=FALSE}
+pacman::p_load(XML,jsonlite,RCurl)
 
+source("private/HEREAPIkey.R") # you need to register you own App_code and App_id
 
+# set up example data
+latitude <- 34.9859619
+longitude <- -78.5900116
+range <- 1800 # 30 minutes, in seconds
+resolution <- 5
 
+response_parsed <- RJSONIO::fromJSON(
+  RCurl::getURL(paste0(
+    "https://traffic.cit.api.here.com/traffic/6.2/flow/json/8/134/86&",
+    "?app_id=", App_id, "&app_code=", App_code)))
 
+response_xml <- RCurl::getURL(
+  paste0("https://traffic.cit.api.here.com/traffic/6.2/flow.xml",
+         "?bbox=41.64,-87.94;42.02,-87.52", "&app_code=",App_code, "&app_id=",
+         App_id, "&pattern_time=2017-06-28T22:33:57Z", "&TmcTableId=A0101"))
 
-
-
-
-
+response <- xmlParse(response.xml)
+```
 
 ## Weather data
-
 ### Historical (daily)
 
 [NOAA](https://www.ncdc.noaa.gov/)
 
-### Real-time (<= 1 hour)
+### The DarkSky API {.tabset .tabset-fade}
 
-In this part, we show how to get both historical and real-time weather data using [DarkSky API](https://darksky.net/dev/docs/libraries). It can be used in both [Python](https://github.com/bitpixdigital/forecastiopy3) and [R](https://github.com/hrbrmstr/darksky). Before using the DarkSky API to get weather data, you need to register for a API key on [its official website](https://darksky.net/dev/register). The first 1000 API requests you make each day are free, but each API request over the 1000 daily limit will cost you $0.0001, which means a million extra API requests will cost you 100 USD. 
+In this part, we attempt show getting both historical and real-time weather data using [DarkSky API](https://darksky.net/dev/docs/libraries). It can be used in both [Python](https://github.com/bitpixdigital/forecastiopy3) and [R](https://github.com/hrbrmstr/darksky). Before using the DarkSky API to get weather data, you need to register for a API key on [its official website](https://darksky.net/dev/register). The first 1000 API requests you make each day are free, but each API request over the 1000 daily limit will cost you $0.0001, which means a million extra API requests will cost you 100 USD. 
 
-To get weather data from the DarkSky API, you need to provide the following information on trucks:
-
-1. latitude
-2. longitude
-3. date and time
-
-Then you can pass these three parameters to the `get_forecast_for()` function in [`darksky`](https://github.com/hrbrmstr/darksky) package in R.
+To get weather data from the DarkSky API, you need to provide 1) latitude, 2) longitude, 3) date and time. Then you can pass these three parameters to the `get_forecast_for()` function in [`darksky`](https://github.com/hrbrmstr/darksky) package in R.
 
 ```{r}
 source("private/DarkSkyAPIkey.R")
@@ -322,9 +327,18 @@ dat = structure(list(
 weather_dat <- pmap(
    list(dat$latitude, dat$longitude, dat$time),
    get_forecast_for)
-```
 
-#### DarkSky returned data {.tabset .tabset-fade}
+datatable(
+  dat,
+  caption = 'Sample data to demonstrate the DarkSky API',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  ))%>% 
+  formatStyle( 0, target= 'row', lineHeight='80%')
+```
 
 For each observation (a combination of latitude, longitude, date and time),  the darksky API returns a list of 3 data.frames: 
 
@@ -334,7 +348,7 @@ For each observation (a combination of latitude, longitude, date and time),  the
 
 The variables include: apparent (feels-like) temperature, atmospheric pressure, dew point, humidity, liquid precipitation rate, moon phase, nearest storm distance, nearest storm direction, ozone, precipitation type, snowfall, sun rise/set, temperature, text summaries, uv index, wind gust, wind speed, wind direction 
 
-##### hourly weather{-}
+#### hourly weather{-}
 
 ```{r}
 datatable(
@@ -350,7 +364,7 @@ datatable(
 ```
 
 
-##### daily weather{-}
+#### daily weather{-}
 
 ```{r}
 datatable(
@@ -366,7 +380,7 @@ datatable(
 ```
 
 
-##### currently weather{-}
+#### currently weather{-}
 
 ```{r}
 datatable(
@@ -383,9 +397,26 @@ datatable(
 
 
 
+
+
+
+
 Descriptive analytic tools
 ===========================
-## An example of clustering
+
+## Data visualization
+
+
+## Clustering
+
+
+
+
+
+
+
+An example of clustering
+========================
 
 The following codes attempts to replicate the visual clustering approach from
 
@@ -451,13 +482,86 @@ To sum up, it seems that K-means clustering method was very efficient here. We a
 
 
 
-Data visualization
-==================
+
+
 
 
 Statistical models
 ==================
+Logistic regression and Poisson regression are two most commonly used statistical models in traffic safety studies. In this section, we provides introductory statistical theories on the two models, and 
 
+## Logistic regression
+
+The most common model for traffic safety studies is logistic regression, where the response is $Y_i=1$ if a crash occurred in a given segment/time period, and $Y_i=0$ if no crash occurred.  In logistic regression we assume that the logit of the probability of a traffic crash is a combination of a linear predictor variables:
+
+\[
+Y_i \sim \text{Bernoulli}(p_i)\\
+\text{logit}(p_i) = \log \left( \frac{p_i}{1-p_i}\right)
+= \textbf{X}^{\prime} \boldsymbol{\beta}
+\]
+
+Here
+
+\[
+\textbf{X}^{\prime} \boldsymbol{\beta}
+= \beta_0 + \sum_{j=1}^{p} x_{ij} \beta_j
+\]
+
+where the $x_{ij}$ are covariates. A simple linear regression can be conducted using the following R code.
+
+```{r eval=FALSE}
+# simulate data
+set.seed(123)
+n = 10000
+fatigue = rnorm(n, 3, 1)
+precipitation = rbeta(n, 1, 5)
+traffic = rgamma(n, 5, 1)
+p = gtools::inv.logit(-5 + 0.5*fatigue + 0.2*traffic + 0.5*precipitation)
+Y = rbernoulli(n, p)
+
+logit_dat = data.frame(Y, fatigue, traffic, precipitation)
+
+# logistic regression
+logit_fit <- glm(
+  Y ~ fatigue + traffic + precipitation,
+  family = "binomial", data = logit_dat)
+summary(logit_fit)
+```
+
+For a detailed explanation on interpreting the results of a logistic regression, the readers can refer to [the example by the UCLA](https://stats.idre.ucla.edu/r/dae/logit-regression/).
+
+## Poisson regression
+
+Another widely used model for traffic safety studies is Poisson regression, where the response $Y_i$ is the number of crashes.
+
+\[
+Y_i \sim \text{Poisson}(T*\lambda)\\
+\log\lambda = \textbf{X}^{\prime} \boldsymbol{\beta}
+\]
+
+Here $T$ is the length/time of a trip. It is an exposure variable that indicates the number of crashes could have occurred.
+
+```{r}
+# simulate data
+set.seed(123)
+n = 500
+fatigue = rnorm(n, 3, 1)
+precipitation = rbeta(n, 1, 5)
+traffic = rgamma(n, 5, 1)
+trip = rnorm(n, 6, 1)
+explambda = exp(-5 + 0.5*fatigue + 0.2*traffic + 0.5*precipitation)
+Y = rpois(n, lambda = explambda*trip)
+
+pois_dat = data.frame(Y, trip, fatigue, traffic, precipitation)
+
+# Poisson regression
+poisson_fit <- glm(
+  Y ~ fatigue + traffic + precipitation, 
+  offset = trip, family = "poisson", data = pois_dat)
+summary(poisson_fit)
+```
+
+For a detailed explanation on interpreting the results of a Poisson regression, the readers can refer to [the example by the UCLA](https://stats.idre.ucla.edu/r/dae/poisson-regression/).
 
 # References {#references .unnumbered}
 
