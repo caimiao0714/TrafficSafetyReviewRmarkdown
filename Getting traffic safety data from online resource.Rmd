@@ -1,5 +1,5 @@
 ---
-title: "A vignette for the traffic safety review paper"
+title: "A vignette for the Transportation safety Review Paper"
 author: 
   - Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
   - Amir Mehdizadeh, M.S.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
@@ -7,28 +7,159 @@ author:
   - Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
 date: "`r Sys.Date()`"
 output:
-  html_document:
-    theme: yeti
-    toc: true
-    toc_float: true
-    number_sections: true
-    df_print: paged
+  rmdformats::readthedown:
     code_folding: hide
-    highlight: tango
-  pdf_document:
+    self_contained: true
+    thumbnails: false
+    lightbox: false
     number_sections: yes
 link-citations: yes
 linkcolor: blue
+bibliography: ref.bib
 ---
 
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 16px;
+  }
+td {  /* Table  */
+  font-size: 12px;
+}
+h1.title {
+  font-size: 35px;
+}
+h1 { /* Header 1 */
+  font-size: 20px;
+}
+h2 { /* Header 2 */
+    font-size: 16px;
+}
+h3 { /* Header 3 */
+  font-size: 16px;
+}
+code.r{ /* Code block */
+    font-size: 14px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+}
+</style>
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 10, fig.asp = 0.618, fig.align = "center", message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, cache = TRUE, message = FALSE, 
+  fig.width = 10, fig.asp = 0.618, fig.align = "center")
+
+#devtools::install_github("jayjacobs/ggcal")
+pacman::p_load(
+  data.table, tidyverse, foreign, darksky, DT, 
+  ClusterR, RColorBrewer, rmdformats, ggcal)
 ```
 
-# Extracting transportation safety data from online sources
+This vignette serves as the supplementary materials to create reproducible examples provided in a detailed review on transportation safety research by Qiong et al.
+
+> Qiong Hu, Amir Mehdizadeh, Nasrin Mohabbati Kalejahi, Mohammad Ali Alamdar Yazdi, Miao Cai,Aleksandr Vinel, Steven E. Rigdon, Karen C. Davis, Fadel M. Megahe. **Bridging the Gap between Transportation Safety Research and its Incorporation inOptimization Models: a Detailed Review and Perspective**. Submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_.
+
+The vignette includes example on five aspects:
+
+1. Bibliographic analysis
+2. Extracting online transportation safety data
+3. Descriptive analytic tools
+4. Data visualization
+5. Statistical methods
+
+
+Bibliographic analysis
+===========================
+To perform a quick bibliometric analysis on Web of Science Data obtained using the following combination of words without limiting the document type, years, language. 
+
+```
+TOPIC: ("hazmat transportation" OR "real-time crash prediction" OR ("vehicle routing" AND safety))
+```
+The search was performed using WoS Core Collection Resulted in the download of a plain txt file containing the full record with cited references for 992 results (7/30/2018 - 11:08 am ET)
+
+[Vignette for `bibliometrix` packge](https://cran.r-project.org/web/packages/bibliometrix/vignettes/bibliometrix-vignette.html)
+
+## Bibliometric Summary for Transportation Safety
+
+```{r}
+pacman::p_load(bibliometrix,tidyverse,data.table,rvest) 
+
+df.trans.safety <- readFiles("data/savedrecs.txt")
+M <-convert2df(df.trans.safety)
+
+
+# Bibliometric Analysis (Per the Bibliometrix Guide)
+results <- biblioAnalysis(M, sep = ";")
+# Options modified for this analysis purposes
+options(width=100)
+S <- capture.output(summary(object = results, k = 10, pause = FALSE))
+cat("Bibliometric Summary for Transportation Safety",
+    S,file = "biblio-summary.txt", sep = "\n")
+plot(x = results, k = 10, pause = FALSE)
+```
+
+
+## Bibliographic Network Matrices - Journal Names
+
+```{r}
+# Bibliographic Network Matrices
+#-------------------------------
+# [1] Sources - i.e. Journal Names
+NetMatrix <- biblioNetwork(M, analysis = "coupling", 
+                           network = "sources", 
+                           sep = ";")
+net=networkPlot(NetMatrix,  normalize = "salton", 
+                weighted=NULL, n = 25, 
+                Title = "Coupling of Journal Names", 
+                type = "auto", size=13,size.cex=T,
+                remove.multiple=TRUE,labelsize=0.55,
+                label.n=25,label.cex=F,
+                cluster="optimal",edges.min = 5)
+```
+
+## keyword co-occurrences network
+
+```{r}
+#  [2] Create keyword co-occurrences network
+NetMatrix <- biblioNetwork(M, analysis = "co-occurrences", network = "keywords", sep = ";")
+# Plot the network
+net=networkPlot(NetMatrix, normalize="salton", 
+                weighted=NULL, n = 60, 
+                Title = "Keyword Co-Occurrences", 
+                type = "auto", size=15,size.cex=T,
+                remove.multiple=TRUE,labelsize=0.75,
+                label.n=60,label.cex=F,
+                cluster="optimal",edges.min = 5, label.color = TRUE,
+                halo = TRUE)
+netstat <- networkStat(NetMatrix)
+out <- capture.output(summary(netstat, k=60))
+cat("Network Statistics",
+    S,file = "keyword-network-statistics.txt", 
+    sep = "\n")
+```
+
+## a Conceptual Structure Map
+
+```{r}
+# [3] Creating a Conceptual Structure Map from the Titles
+# Using the MCA Method with terms mentioned at least 25
+# times in the title
+CS <- conceptualStructure(M,field="ID_TM", method="MCA", 
+                          minDegree=20, k.max=5, labelsize=15,
+                          documents = 856)
+```
+
+
+
+
+Extracting online transportation safety data
+============================================
+
+This section provides sources for online open-access transportation data, including both historic and real-time crash-related, traffic flow, and weathaer data. We also provided R codes to read different formats of data and convert them to compatible comma separated value (.csv) files.
 
 ## Crash-related data
-
 ### Historical data (yearly)
 Historical crash-related variables such as location, time, weather, road surface conditions, vehicles/ pedestrians involved in a crash, crash outcomes and/or root-causes can be extracted from these two databases. 
 
@@ -38,9 +169,8 @@ Historical crash-related variables such as location, time, weather, road surface
 **FMCSA database**
 
 The Motor Carrier Crash Information can be downloaded on Federal Motor Carrier Safety Administration ([FMCSA](https://ai.fmcsa.dot.gov/SMS/Tools/Downloads.aspx)). This database contains information about the location, vehicle and severity of truck crashes (description about each feature can be found [here](data/Crash_Readme.txt)). We downloaded the FMCSA Motor Carrier Crash data on January 15, 2019 and they were collected between December 2016 and December 2018. The Following table and graph show the truck crashes information in Missouri, 2017. 
-```{r fig.width=6}
-pacman::p_load(data.table, tidyverse, purrr, foreign, knitr, kableExtra, darksky)
 
+```{r fig.width=6,fig.cap='The number of motor carrier crashes by year and month in Missouri 2017'}
 fmcsa = data.table::fread("data/Crash_2018Dec/2018Dec_crash.txt")
 
 fmcsa[, REPORT_DATE := lubridate::dmy(REPORT_DATE)]
@@ -51,15 +181,23 @@ fmcsamo %>%
   ggplot(aes(x = ymonth)) + geom_bar(fill = "lightblue") + 
   xlab("Year and month") + ylab("The number of motor carrier crashes") + 
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-knitr::kable(fmcsamo[1:5,], format = "html",
-             caption = "All truck crashes in Missouri, 2017") %>% 
-  kable_styling(bootstrap_options = c("condensed")) %>% 
-  scroll_box(width = "100%", height = "300px")
-
-cat("Number of Observations and Variables:",dim(fmcsa))
 ```
-For the mentioned time period, there were `r dim(fmcsa)[1]` observations and `r dim(fmcsa)[2]` variables. Further, the original format of this database is text (.txt). For more convenience, one can convert the format of this database to comma-separated values(.csv).
+
+```{r}
+datatable(
+  head(fmcsamo),
+  caption = 'All truck crashes in Missouri, 2017',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )) %>% 
+  formatStyle( 0, target= 'row', lineHeight='50%')
+```
+
+
+For the mentioned time period, there were `r dim(fmcsa)[1]` observations and `r dim(fmcsa)[2]` variables in the data. Further, the original format of this database is text (.txt). For more convenience, one can convert the format of this database to comma-separated values(.csv).
 
 ```{r}
 data.table::fwrite(fmcsa, "data/fmcsa.csv")
@@ -68,11 +206,9 @@ data.table::fwrite(fmcsa, "data/fmcsa.csv")
 
 **NHTSA database**
 
-All fatal crashes from 1975 to 2017 (FARS database) can be downloaded at National Highway Traffic Safety Administration (NHTSA) [official site](ftp://ftp.nhtsa.dot.gov/fars/). FARS dataset provides information about fatal crashes in three aspects: crashes, vehicles and people. The code chunk shows the different files that are accessible from this dataset. 
+All fatal crashes from 1975 to 2017 (FARS database) can be downloaded at National Highway Traffic Safety Administration (NHTSA) [official site](ftp://ftp.nhtsa.dot.gov/fars/). FARS dataset provides information about fatal crashes in three aspects: crashes, vehicles and people. The names of all available .csv files are listed below. 
 
 ```{r}
-require(data.table)
-
 csvpath = './data/FARS2017NationalCSV/'
 csvname = list.files(path = csvpath, pattern = "*.csv")
 csvpathname = paste0(csvpath, csvname)
@@ -88,15 +224,18 @@ Besides, there is an exclusive database from 2000 to 2010, for trucks involved i
 ```{r}
 tifa2010 = haven::read_sas("data/TIFA_2010/TIFA_2010.sas7bdat")
 data.table::fwrite(tifa2010, "data/TIFA_2010/tifa2010.csv")
-```
 
-```{r}
-knitr::kable(tifa2010[1:5,], format = "html",
-             caption = "Fatal truck crashes provided by the TIFA, 2010") %>% 
-  kable_styling(bootstrap_options = c("condensed")) %>% 
-  scroll_box(width = "100%", height = "300px")
+datatable(
+  head(tifa2010),
+  caption = 'Fatal truck crashes provided by the TIFA, 2010',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )) %>% 
+  formatStyle( 0, target= 'row', lineHeight='50%')
 ```
-
 
 ### Real-time data (<= 1 hour)
 
@@ -113,10 +252,15 @@ Most of the states in the USA have activated 511 system. Basically, this system 
 # Using Missouri as an example
 fhwai = foreign::read.dbf("data/missouri2017/Missouri2017.dbf")
 
-knitr::kable(fhwai[1:5,], format = "html",
-             caption = "Historical traffic data in Missouri, 2017") %>% 
-  kable_styling(bootstrap_options = c("condensed")) %>% 
-  scroll_box(width = "100%", height = "200px")
+datatable(
+  head(fhwai),
+  caption = 'Historical traffic data in Missouri, 2017',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  ))
 ```
 
 
@@ -182,42 +326,65 @@ weather_dat <- pmap(
 
 #### DarkSky returned data {.tabset .tabset-fade}
 
-For each datum,  data returned by the darksky API includes a list of 3 data.frames: 
+For each observation (a combination of latitude, longitude, date and time),  the darksky API returns a list of 3 data.frames: 
 
-1. hourly weather data. 24 hourly observations for each 15 weather variables in that day.
-2. daily weather data. 1 observations for each 34 weather variables in that day.
-3. current weather data. 1 observations for each 15 weather variables at the assigned time point.
+1. hourly weather. 24 hourly observations for each 15 weather variables in that day.
+2. daily weathe. 1 observations for each 34 weather variables in that day.
+3. current weather. 1 observations for each 15 weather variables at the assigned time point.
 
 The variables include: apparent (feels-like) temperature, atmospheric pressure, dew point, humidity, liquid precipitation rate, moon phase, nearest storm distance, nearest storm direction, ozone, precipitation type, snowfall, sun rise/set, temperature, text summaries, uv index, wind gust, wind speed, wind direction 
 
-##### hourly weather
+##### hourly weather{-}
 
 ```{r}
-kable(weather_dat[[1]]$hourly) %>% 
-  kable_styling(full_width = F) %>% 
-  column_spec(1, width = "20em") %>% 
-  scroll_box(height = "300px") #width = "100%", 
-```
-
-##### daily weather
-
-```{r}
-kable(weather_dat[[1]]$daily) %>% 
-  kable_styling(bootstrap_options = c("condensed")) %>% 
-  scroll_box(height = "200px") 
-```
-
-##### currently weather
-
-```{r}
-kable(weather_dat[[1]]$currently) %>% 
-  kable_styling(bootstrap_options = c("condensed")) %>% 
-  scroll_box(height = "100px") 
+datatable(
+  head(weather_dat[[1]]$hourly),
+  caption = 'Hourly weather provided by the DarkSky API',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  ))%>% 
+  formatStyle( 0, target= 'row', lineHeight='80%')
 ```
 
 
-# Descriptive analytic tools used for understanding transportation safety data
+##### daily weather{-}
 
+```{r}
+datatable(
+  head(weather_dat[[1]]$daily),
+  caption = 'Daily weather provided by the DarkSky API',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  ))%>% 
+  formatStyle( 0, target= 'row', lineHeight='80%')
+```
+
+
+##### currently weather{-}
+
+```{r}
+datatable(
+  head(weather_dat[[1]]$currently),
+  caption = 'Current weather provided by the DarkSky API',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  ))%>% 
+  formatStyle( 0, target= 'row', lineHeight='80%')
+```
+
+
+
+Descriptive analytic tools
+===========================
 ## An example of clustering
 
 The following codes attempts to replicate the visual clustering approach from
@@ -233,16 +400,7 @@ Hourly vehicle counts data is used in this example. It provides the number of ve
 It is almost impossible to understand raw data and also discover interesting patterns in it by just looking at 8760 (370 * 24) data cells. Hence, K-means clustering method is utilized here to present data in a more understandable format. K-means clustering is a common technique to explore data and discover patterns by grouping similar data to predefined (k) number of clusters. K-means clustering aims to group data into k clusters in a way to minimize the within-cluster sum of squares (WCSS). To find the optimal number of clusters, we have used a method that was suggested  by [Pham et al. (2005)](https://journals.sagepub.com/doi/abs/10.1243/095440605X8298?casa_token=Dxd8Ny3CIVwAAAAA%3ARo-nbplezRozrmMehzua_ZbbbTp7O9xFPXFGu0JULHsZwDzjSJNkMiY73-_mTMKbWE2ntgOkzzE). According to the following graph two is the best number of clusters to group this data.
 
 ```{r}
-pacman::p_load(data.table,devtools,
-       ggplot2,plotly,extrafont,grDevices,RColorBrewer, ggthemes,
-       dplyr, stringr,tidyverse,readr,
-       rstudioapi,processx,
-       ClusterR)
-
-# install_github("jayjacobs/ggcal")
-library(ggcal)
-
-trafficflow.df <- read_csv("data/georgia-TFdata-station-121-5505-Yr2015.csv")
+trafficflow.df <- readr::read_csv("data/georgia-TFdata-station-121-5505-Yr2015.csv")
 trafficflow.df$Date <- as.Date(trafficflow.df$Date, format='%d-%b')
 
 opt = Optimal_Clusters_KMeans(
@@ -251,8 +409,9 @@ opt = Optimal_Clusters_KMeans(
   initializer = 'optimal_init', tol_optimal_init = 0.2,
   max_iters = 10000)
 num_clusters <- which.min(opt) # Based on the results, we should use k=2 clusters in kmeans
-km = KMeans_arma(as.data.frame(trafficflow.df[,4:27]), clusters = num_clusters, n_iter = 10000, seed_mode = "random_subset", 
-                 verbose = T, CENTROIDS = NULL)
+km = KMeans_arma(
+  as.data.frame(trafficflow.df[,4:27]), clusters = num_clusters, 
+  n_iter = 10000, seed_mode = "random_subset", verbose = F, CENTROIDS = NULL)
 pr = predict_KMeans(data.frame(trafficflow.df[,4:27]), km)
 trafficflow.df$cluster.num <- as.vector(pr) %>% as.factor()
 table(trafficflow.df$cluster.num)
@@ -279,9 +438,9 @@ plot.df <- melt(plot.df, value.name="Traffic.Flow",
                         variable.name="Hour",id.vars="cluster.num")
 plot.df$cluster.num <- as.factor(plot.df$cluster.num)
 
-p1 <- ggplot(data = plot.df, aes(x = Hour, y = Traffic.Flow, group=cluster.num,
-                           color=cluster.num)) + geom_line(size=2) +
-  theme_bw() + 
+p1 <- plot.df %>% 
+  ggplot(aes(x = Hour, y = Traffic.Flow, group=cluster.num, color=cluster.num)) + 
+  geom_line(size=2) + theme_bw() + 
   theme(legend.position="top", axis.text.x=element_text(angle=90, hjust=1)) +
   scale_color_brewer("Paired")
 p1
@@ -292,8 +451,15 @@ To sum up, it seems that K-means clustering method was very efficient here. We a
 
 
 
+Data visualization
+==================
 
 
+Statistical models
+==================
+
+
+# References {#references .unnumbered}
 
 
 
