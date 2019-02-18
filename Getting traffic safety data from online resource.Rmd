@@ -73,14 +73,13 @@ To maximize the readability of this vignette, we hided all R codes by default, b
 
 Bibliographic analysis
 ======================
-To perform a quick bibliometric analysis on Web of Science Data obtained using the following combination of words without limiting the document type, years, language. 
+To perform a quick bibliometric analysis on [Clarivate Analytics Web of Science (WoS)](https://clarivate.com/products/web-of-science/), we searched transportation safety publications in WoS Core Collection using the following combination of words without limiting the document type, years, language:
 
 ```
 ("hazmat transportation" OR "real-time crash prediction" OR ("vehicle routing" AND safety))
 ```
-The search was performed using WoS Core Collection Resulted in the download of a plain txt file containing the full record with cited references for 992 results (7/30/2018 - 11:08 am ET)
 
-[Vignette for `bibliometrix` packge](https://cran.r-project.org/web/packages/bibliometrix/vignettes/bibliometrix-vignette.html)
+This resulted in a downloadable plain .txt file (we named it 'savedrecs.text' under data folder), containing the full records with cited references for 992 results (conducted at 7/30/2018 - 11:08 am ET). We then used the R package [`bibliometrix`](http://www.bibliometrix.org/) to conduct a bibliometric analysis on this topic.
 
 ## Bibliometric Summary for Transportation Safety
 
@@ -272,13 +271,15 @@ There are several sources for getting real-time traffic data. Some of the states
 
 Further, [HERE](https://www.here.com/) website also provides near real-time traffic data with the limitation of 250,000 APIs per month for free. The [HERE Traffic API ](https://developer.here.com/documentation/traffic/topics/what-is.html) provides traffic flow and incidents information. It also allows the users to request traffic map tiles. The HERE Traffic API provides four types of traffic data:
 
-- _Traffic Incident Data_: the type and location of each traffic incident, status, start and end time, and other relevant data
-- _Traffic Map Tile Overlays (Traffic Tiles)_: pre-rendered map tile overlays with traffic information
-- _Traffic Flow Data_: real-time traffic flow data, including speed, congestion, geometry of the road segments
-- _Traffic Flow Availability_: traffic flow information, excluding incidents in an area
+- Traffic Incident Data: the type and location of each traffic incident, status, start and end time, and other relevant data
+- Traffic Map Tile Overlays (Traffic Tiles): pre-rendered map tile overlays with traffic information
+- Traffic Flow Data: real-time traffic flow data, including speed, congestion, geometry of the road segments
+- Traffic Flow Availability: traffic flow information, excluding incidents in an area
+
+The HERE API do not provide a package/interface in R. Queries data from HERE API in R may need messy and highly customized code, so we do not provide R code here. 
 
 ```{r eval=FALSE}
-pacman::p_load(XML,jsonlite,RCurl)
+pacman::p_load(XML, jsonlite, RCurl)
 
 source("private/HEREAPIkey.R") # you need to register you own App_code and App_id
 
@@ -418,7 +419,7 @@ Descriptive analytic tools
 An example of clustering
 ========================
 
-The following codes attempts to replicate the visual clustering approach from
+The following codes attempts to replicate the visual clustering approach by @van1999cluster
 
 > Van Wijk, Jarke J., and Edward R. Van Selow. 1999. "Cluster and Calendar Based Visualization of Time Series Data." In Information Visualization, 1999.(Info Vis' 99) Proceedings. 1999 IEEE Symposium on, 4-9. IEEE.
 
@@ -428,7 +429,7 @@ A brief example of applying EDA methods on traffic data is provided here. The go
 Hourly vehicle counts data is used in this example. It provides the number of vehicles which passed along a particular segment of a road in one hour. Data is extracted from the Georgia Department of Transportation (GDoT) (Georgia Department of Transportation, 2015) for 2015 from station 121-5505 which located in Atlanta. GDoT provides data in separate sheets for each month. After extracting and cleaning data, it was combined to one sheet with 365 rows (days) and 24 columns (hours). Data can be downloaded from [GDoT](http://geocounts.com/gdot/).
 
 ### Clustering
-It is almost impossible to understand raw data and also discover interesting patterns in it by just looking at 8760 (370 * 24) data cells. Hence, K-means clustering method is utilized here to present data in a more understandable format. K-means clustering is a common technique to explore data and discover patterns by grouping similar data to predefined (k) number of clusters. K-means clustering aims to group data into k clusters in a way to minimize the within-cluster sum of squares (WCSS). To find the optimal number of clusters, we have used a method that was suggested  by [Pham et al. (2005)](https://journals.sagepub.com/doi/abs/10.1243/095440605X8298?casa_token=Dxd8Ny3CIVwAAAAA%3ARo-nbplezRozrmMehzua_ZbbbTp7O9xFPXFGu0JULHsZwDzjSJNkMiY73-_mTMKbWE2ntgOkzzE). According to the following graph two is the best number of clusters to group this data.
+It is almost impossible to understand raw data and also discover interesting patterns in it by just looking at 8760 (370 * 24) data cells. Hence, K-means clustering method is utilized here to present data in a more understandable format. K-means clustering is a common technique to explore data and discover patterns by grouping similar data to predefined (k) number of clusters. K-means clustering aims to group data into k clusters in a way to minimize the within-cluster sum of squares (WCSS). To find the optimal number of clusters, we have used a method that was suggested  by @pham2005selection. According to the following graph two is the best number of clusters to group this data.
 
 ```{r}
 trafficflow.df <- readr::read_csv("data/georgia-TFdata-station-121-5505-Yr2015.csv")
@@ -450,7 +451,7 @@ table(trafficflow.df$cluster.num)
 
 
 ### Visualization
-Now, k-means clustering can be applied. The output of this step is a column which its value is either one or two,indicating that each row of data (day) belongs to cluster one or two. Now data is divided into two groups. However, still we need to transfer data to a visual format to somehow validate and guide the clustering process. Since our data contains temporal information, we have used Cluster Calendar View visualization technique which is introduced by [Van Wijk and Van Selow (1999)](https://ieeexplore.ieee.org/abstract/document/801851). In this technique, a calendar represents the temporal information of data and by using color coding, differences between clusters are distinguished. The following graph shows a cluster calendar view for our data. It clearly has found meaningful patterns in the vehicle counts data. Weekends and weekdays have different traffic patterns. Besides, it has captured some of the holidays. For example, the 4th of July (Independence Day) which is a weekday, is colored by light blue. It means that this day has a similar traffic pattern with weekends. In addition, the clustering method has identified other holidays like Martin Luther King Day, Memorial Day, Labor Day, Thanksgiving Day and Christmas Day.
+Now, k-means clustering can be applied. The output of this step is a column which its value is either one or two,indicating that each row of data (day) belongs to cluster one or two. Now data is divided into two groups. However, still we need to transfer data to a visual format to somehow validate and guide the clustering process. Since our data contains temporal information, we have used Cluster Calendar View visualization technique which is introduced by @van1999cluster. In this technique, a calendar represents the temporal information of data and by using color coding, differences between clusters are distinguished. The following graph shows a cluster calendar view for our data. It clearly has found meaningful patterns in the vehicle counts data. Weekends and weekdays have different traffic patterns. Besides, it has captured some of the holidays. For example, the 4th of July (Independence Day) which is a weekday, is colored by light blue. It means that this day has a similar traffic pattern with weekends. In addition, the clustering method has identified other holidays like Martin Luther King Day, Memorial Day, Labor Day, Thanksgiving Day and Christmas Day.
 
 ```{r}
 col.brewer.pal <- brewer.pal(11, "Paired")
