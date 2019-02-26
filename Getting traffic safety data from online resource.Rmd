@@ -1,10 +1,15 @@
 ---
-title: "Supplementary materials - Bridging the Gap between Transportation Safety Research and its Incorporation in Optimization Models: a Detailed Review and Perspective"
+title: "Supplemental materials - Transportation safety review"
 author: 
-  - Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. Email address [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
-  - Amir Mehdizadeh, M.S.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
-  - Mohammad Ali Alamdar Yazdi, Ph.D.^[Carey Business School, Johns Hopkins University[mza0052@auburn.edu](mailto:mza0052@auburn.edu)]
-  - Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
+- Qiong Hu, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University. [qzh0011@auburn.edu](mailto:qzh0011@auburn.edu)]
+- Amir Mehdizadeh, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
+- Nasrin Mohabbati Kalejahi, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.[nzm0030@auburn.edu](nzm0030@auburn.edu)]
+- Mohammad Ali Alamdar Yazdi, Ph.D.^[Carey Business School, Johns Hopkins University[mza0052@auburn.edu](mailto:mza0052@auburn.edu)]
+- Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
+- Aleksandr Vinel, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University.[alexander.vinel@auburn.edu](mailto:alexander.vinel@auburn.edu)]
+- Steven E. Rigdon, Ph.D.^[Department of Epidemiology and Biostatistics, Saint Louis University.[steve.rigdon@slu.edu](steve.rigdon@slu.edu)]
+- Karen C. Davis, Ph.D.^[Department of Computer Science and Software Engineering, Miami University.[davisk4@miamioh.edu](davisk4@miamioh.edu)]
+- Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
 date: "`r Sys.Date()`"
 output:
   rmdformats::readthedown:
@@ -14,6 +19,8 @@ output:
     lightbox: false
     number_sections: yes
     fig_caption: yes
+    includes:
+      after_body: footer.html
 link-citations: yes
 linkcolor: blue
 bibliography: ref.bib
@@ -28,7 +35,7 @@ td {  /* Table  */
   font-size: 12px;
 }
 h1.title {
-  font-size: 35px;
+  font-size: 30px;
 }
 h1 { /* Header 1 */
   font-size: 20px;
@@ -65,14 +72,6 @@ a:link {color:#B61E2E; text-decoration:underline; font-size:100%}
 a:visited {color:#B61E2E;text-decoration:underline;}
 a:hover  {font-size:150%;color:#B61E2E;text-decoration:underline;}
 a:active {color:#B61E2E;}
-.toggle{
- display:inline-block;
-height:48px;
-width:48px;  background:url("http://icons.iconarchive.com/icons/pixelmixer/basic/48/plus-icon.png");
-}
-.toggle.expanded{
-  background:url("http://cdn2.iconfinder.com/data/icons/onebit/PNG/onebit_32.png");
-}
 </style>
  
 ```{js echo=FALSE}
@@ -96,7 +95,7 @@ pacman::p_load(
   ClusterR, RColorBrewer, rmdformats, ggcal, gtools)
 ```
 
-In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This vignette serves as the supplementary materials to create reproducible examples in the manuscript **Bridging the Gap between Transportation Safety Research and its Incorporation inOptimization Models: a Detailed Review and Perspective**. Submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_. 
+In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This website serves as the supplementary materials to create reproducible examples in the manuscript **Bridging the Gap between Transportation Safety Research and its Incorporation inOptimization Models: a Detailed Review and Perspective**. It has been submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_. 
 
 This vignette includes examples on the following five aspects:
 
@@ -111,6 +110,7 @@ To maximize the readability of this vignette, we hided all R codes by default, b
 
 Bibliographic analysis{.tabset .tabset-fade}
 ======================
+***
 To perform a quick bibliometric analysis on [Clarivate Analytics Web of Science (WoS)](https://clarivate.com/products/web-of-science/), we searched transportation safety publications in WoS Core Collection using the following combination of words without limiting the document type, years, language:
 
 ```
@@ -162,7 +162,7 @@ CS <- conceptualStructure(
 
 Extracting online transportation safety data
 ============================================
-
+***
 This section provides sources for online open-access transportation data, including both historic and real-time crash-related, traffic flow, and weathaer data. We also provided R codes to read different formats of data and convert them to compatible comma separated value (.csv) files.
 
 ## Crash-related data{.tabset .tabset-fade}
@@ -294,14 +294,13 @@ Further, [HERE](https://www.here.com/) website also provides near real-time traf
 The HERE API do not provide a package/interface in R. Queries data from HERE API in R may need messy and highly customized code, so we do not provide R code here. 
 
 
-## Weather data
-### Historical (daily)
+## Weather data {.tabset .tabset-fade}
 
-[NOAA](https://www.ncdc.noaa.gov/)
+### Real-time (minutes){.tabset .tabset-fade}
 
-### The DarkSky API {.tabset .tabset-fade}
+#### The DarkSky API {-}
 
-In this part, we attempt show getting both historical and real-time weather data using [DarkSky API](https://darksky.net/dev/docs/libraries). It can be used in both [Python](https://github.com/bitpixdigital/forecastiopy3) and [R](https://github.com/hrbrmstr/darksky). Before using the DarkSky API to get weather data, you need to register for a API key on [its official website](https://darksky.net/dev/register). The first 1000 API requests you make each day are free, but each API request over the 1000 daily limit will cost you $0.0001, which means a million extra API requests will cost you 100 USD. 
+In this part, we attempt show getting both historical and real-time weather data using the [DarkSky API](https://darksky.net/dev/docs/libraries). It can be used in both [Python](https://github.com/bitpixdigital/forecastiopy3) and [R](https://github.com/hrbrmstr/darksky). Before using the DarkSky API to get weather data, you need to register for a API key on [its official website](https://darksky.net/dev/register). The first 1000 API requests you make each day are free, but each API request over the 1000 daily limit will cost you $0.0001, which means a million extra API requests will cost you 100 USD. 
 
 To get weather data from the DarkSky API, you need to provide 1) latitude, 2) longitude, 3) date and time. Then you can pass these three parameters to the `get_forecast_for()` function in [`darksky`](https://github.com/hrbrmstr/darksky) package in R. For each observation (a combination of latitude, longitude, date and time),  the darksky API returns a list of 3 data.frames: 
 
@@ -341,8 +340,22 @@ datatable(
   formatStyle( 0, target= 'row', lineHeight='80%')
 ```
 
+#### currently{-}
 
-#### hourly weather{-}
+```{r}
+datatable(
+  head(weather_dat[[1]]$currently),
+  caption = 'Current weather provided by the DarkSky API',
+  class = 'cell-border stripe', 
+  extensions = c('Buttons', 'ColReorder'),
+  options = list(
+    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  ))%>% 
+  formatStyle( 0, target= 'row', lineHeight='80%')
+```
+
+#### hourly{-}
 
 ```{r}
 datatable(
@@ -357,8 +370,7 @@ datatable(
   formatStyle( 0, target= 'row', lineHeight='80%')
 ```
 
-
-#### daily weather{-}
+#### daily{-}
 
 ```{r}
 datatable(
@@ -374,29 +386,17 @@ datatable(
 ```
 
 
-#### currently weather{-}
+### Historical (daily)
 
-```{r}
-datatable(
-  head(weather_dat[[1]]$currently),
-  caption = 'Current weather provided by the DarkSky API',
-  class = 'cell-border stripe', 
-  extensions = c('Buttons', 'ColReorder'),
-  options = list(
-    dom = 'Bfrtip', colReorder = TRUE, scrollX = TRUE,
-    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
-  ))%>% 
-  formatStyle( 0, target= 'row', lineHeight='80%')
-```
+[NOAA](https://www.ncdc.noaa.gov/)
 
 
 
 
 
-
-
-An example of clustering
-===========================
+An example of clustering{.tabset .tabset-fade}
+========================
+***
 The following codes attempts to replicate the visual clustering approach by @van1999cluster
 
 > Van Wijk, Jarke J., and Edward R. Van Selow. 1999. "Cluster and Calendar Based Visualization of Time Series Data." In Information Visualization, 1999.(Info Vis' 99) Proceedings. 1999 IEEE Symposium on, 4-9. IEEE.
@@ -465,11 +465,14 @@ To sum up, it seems that K-means clustering method was very efficient here. We a
 
 
 
-Statistical models
+Statistical models{.tabset .tabset-fade}
 ==================
+***
 Logistic regression and Poisson regression are two most commonly used statistical models in traffic safety studies. In this section, we provides introductory statistical theories on the two models, and 
 
-## Logistic regression
+## Logistic regression {.tabset .tabset-fade}
+
+### Theory {-}
 
 The most common model for traffic safety studies is logistic regression, where the response is $Y_i=1$ if a crash occurred in a given segment/time period, and $Y_i=0$ if no crash occurred.  In logistic regression we assume that the logit of the probability of a traffic crash is a combination of a linear predictor variables:
 
@@ -487,6 +490,8 @@ Here
 \]
 
 where the $x_{ij}$ are covariates. A simple linear regression can be conducted using the following R code.
+
+### R code{-}
 
 ```{r }
 # simulate data
@@ -509,7 +514,8 @@ summary(logit_fit)
 
 For a detailed explanation on interpreting the results of a logistic regression, the readers can refer to [the example by the UCLA](https://stats.idre.ucla.edu/r/dae/logit-regression/).
 
-## Poisson regression
+## Poisson regression {.tabset .tabset-fade}
+### Theory{-}
 
 Another widely used model for traffic safety studies is Poisson regression, where the response $Y_i$ is the number of crashes.
 
@@ -519,6 +525,8 @@ Y_i \sim \text{Poisson}(T*\lambda)\\
 \]
 
 Here $T$ is the length/time of a trip. It is an exposure variable that indicates the number of crashes could have occurred.
+
+### R code{-}
 
 ```{r}
 # simulate data
@@ -542,7 +550,7 @@ summary(poisson_fit)
 
 For a detailed explanation on interpreting the results of a Poisson regression, the readers can refer to [the example by the UCLA](https://stats.idre.ucla.edu/r/dae/poisson-regression/).
 
-# Acknowledgement
+# Acknowledgement{-}
 
 We thank the National Science Foundation for supporting our research. We also thank the DarkSky API for providing us five million free calls to their weather database.
 
