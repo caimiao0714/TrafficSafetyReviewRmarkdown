@@ -144,7 +144,7 @@ out <- capture.output(summary(netstat, k=60))
 ![A keyword co-occurrence network of the literature, depicting the 60 most used keywords.](Figures/keywords-co-occ-60words.png){width=500px}
 </center>
 
-## A conceptual Structure Map
+## A conceptual structure map
 
 Creating a Conceptual Structure Map from the Titles Using the MCA Method with terms mentioned at least 25 times in the title
 
@@ -394,8 +394,8 @@ datatable(
 
 
 
-An example of clustering{.tabset .tabset-fade}
-========================
+A clustering example {.tabset .tabset-fade}
+====================
 ***
 The following codes attempts to replicate the visual clustering approach by @van1999cluster
 
@@ -550,9 +550,13 @@ summary(poisson_fit)
 
 For a detailed explanation on interpreting the results of a Poisson regression, the readers can refer to [the example by the UCLA](https://stats.idre.ucla.edu/r/dae/poisson-regression/).
 
+# Optimization
+
+Since optimization code is mostly Python-based, we do not provide code on the optimization section here. Should the readers have interest in this part, they can contact Qiong, Amir, and Alex.
+
 # Acknowledgement{-}
 
-We thank the National Science Foundation for supporting our research. We also thank the DarkSky API for providing us five million free calls to their weather database.
+This work was supported in part by  the National Science Foundation (CMMI-1635927 and CMMI-1634992), the Ohio Supercomputer Center (PMIU0138 and PMIU0162), the American Society of Safety Professionals (ASSP) Foundation, the University of Cincinnati Education and Research Center Pilot Research Project Training Program, and the Transportation Informatics Tier I University Transportation Center (TransInfo). We also thank the DarkSky API for providing us five million free calls to their weather database.
 
 # References {#references .unnumbered}
 
