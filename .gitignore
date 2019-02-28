@@ -1,8 +1,7 @@
 private/
-!Data/savedrecs.txt
 Data/
-Getting_traffic_safety_data_from_online_resource_cache/
-Getting_traffic_safety_data_from_online_resource_files/
+index_cache/
+index_files/
 .Rproj.user
 .Rhistory
 .RData
