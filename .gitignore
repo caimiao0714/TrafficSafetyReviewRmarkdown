@@ -1,6 +1,6 @@
 private/
-Data/
 !Data/savedrecs.txt
+Data/
 Getting_traffic_safety_data_from_online_resource_cache/
 Getting_traffic_safety_data_from_online_resource_files/
 .Rproj.user
