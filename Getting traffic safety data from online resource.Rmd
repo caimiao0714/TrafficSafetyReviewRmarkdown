@@ -1,5 +1,5 @@
 ---
-title: "Supplemental materials - Transportation safety review"
+title: "Supplemental Materials - Crash Risk Modeling Review"
 author: 
 - Qiong Hu, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University. [qzh0011@auburn.edu](mailto:qzh0011@auburn.edu)]
 - Amir Mehdizadeh, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
@@ -95,7 +95,7 @@ pacman::p_load(
   ClusterR, RColorBrewer, rmdformats, ggcal, gtools)
 ```
 
-In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This website serves as the supplementary materials to create reproducible examples in the manuscript **Bridging the Gap between Transportation Safety Research and its Incorporation in Optimization Models: a Detailed Review and Perspective**. It has been submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_. 
+In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This website serves as the supplementary materials to create reproducible examples in the manuscript **Bridging the Gap between the Different Research Streams of Crash Risk Modeling: a Review and Perspective on the Divide between Statistical and Optimization Approaches**. It has been submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_. 
 
 This vignette includes examples on the following five aspects:
 
@@ -468,13 +468,13 @@ To sum up, it seems that K-means clustering method was very efficient here. We a
 Statistical models{.tabset .tabset-fade}
 ==================
 ***
-Logistic regression and Poisson regression are two most commonly used statistical models in traffic safety studies. In this section, we provides introductory statistical theories on the two models, and 
+Logistic regression and Poisson regression are two most commonly used statistical models in crash risk prediction studies. In this section, we provides introductory statistical theories on the two models, and 
 
 ## Logistic regression {.tabset .tabset-fade}
 
 ### Theory {-}
 
-The most common model for traffic safety studies is logistic regression, where the response is $Y_i=1$ if a crash occurred in a given segment/time period, and $Y_i=0$ if no crash occurred.  In logistic regression we assume that the logit of the probability of a traffic crash is a combination of a linear predictor variables:
+The most common model for crash risk prediction studies is logistic regression, where the response is $Y_i=1$ if a crash occurred in a given segment/time period, and $Y_i=0$ if no crash occurred.  In logistic regression we assume that the logit of the probability of a traffic crash is a combination of a linear predictor variables:
 
 \[
 Y_i \sim \text{Bernoulli}(p_i)\\
@@ -517,7 +517,7 @@ For a detailed explanation on interpreting the results of a logistic regression,
 ## Poisson regression {.tabset .tabset-fade}
 ### Theory{-}
 
-Another widely used model for traffic safety studies is Poisson regression, where the response $Y_i$ is the number of crashes.
+Another widely used model for crash risk prediction studies is Poisson regression, where the response $Y_i$ is the number of crashes.
 
 \[
 Y_i \sim \text{Poisson}(T*\lambda)\\
