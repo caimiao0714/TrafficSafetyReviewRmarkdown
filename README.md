@@ -1,5 +1,7 @@
 # Supplementary materials for Crash Risk Modeling Review
 
+![](https://zenodo.org/badge/DOI/10.5281/zenodo.2580384.svg)
+
 This repository serves as the supplementary materials to create reproducible examples in the manuscript:
 
 > Bridging the Gap between the Different Research Streams of Crash Risk Modeling: a Review and Perspective on the Divide between Statistical and Optimization Approaches. 
