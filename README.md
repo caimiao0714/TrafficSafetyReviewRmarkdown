@@ -4,8 +4,9 @@
 
 This repository serves as the supplementary materials to create reproducible examples in the manuscript:
 
-> Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 1 - Data Collection, Exploration and Explanatory/Predictive Modeling.
-> Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 2 - Integrating Two Research Streams
+- > Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 1 - Data Collection, Exploration and Explanatory/Predictive Modeling.
+
+- > Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 2 - Integrating Two Research Streams
 
 
 It has been submitted to _[Sensors](https://www.mdpi.com/journal/sensors)_.
