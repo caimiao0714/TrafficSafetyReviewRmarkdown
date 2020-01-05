@@ -1,15 +1,16 @@
 ---
-title: "Supplemental Materials - Crash Risk Modeling Review"
+title: "Supplemental Materials - Large Truck Safety Review"
 author: 
-- Qiong Hu, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University. [qzh0011@auburn.edu](mailto:qzh0011@auburn.edu)]
-- Amir Mehdizadeh, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
-- Nasrin Mohabbati Kalejahi, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.[nzm0030@auburn.edu](nzm0030@auburn.edu)]
-- Mohammad Ali Alamdar Yazdi, Ph.D.^[Carey Business School, Johns Hopkins University[mza0052@auburn.edu](mailto:mza0052@auburn.edu)]
-- Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
-- Aleksandr Vinel, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University.[alexander.vinel@auburn.edu](mailto:alexander.vinel@auburn.edu)]
-- Steven E. Rigdon, Ph.D.^[Department of Epidemiology and Biostatistics, Saint Louis University.[steve.rigdon@slu.edu](steve.rigdon@slu.edu)]
-- Karen C. Davis, Ph.D.^[Department of Computer Science and Software Engineering, Miami University.[davisk4@miamioh.edu](davisk4@miamioh.edu)]
-- Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
+- Author names not revealed for peer-review process
+#- Qiong Hu, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University. [qzh0011@auburn.edu](mailto:qzh0011@auburn.edu)]
+#- Amir Mehdizadeh, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
+#- Nasrin Mohabbati Kalejahi, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.[nzm0030@auburn.edu](nzm0030@auburn.edu)]
+#- Mohammad Ali Alamdar Yazdi, Ph.D.^[Carey Business School, Johns Hopkins University[mza0052@auburn.edu](mailto:mza0052@auburn.edu)]
+#- Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
+#- Aleksandr Vinel, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University.[alexander.vinel@auburn.edu](mailto:alexander.vinel@auburn.edu)]
+#- Steven E. Rigdon, Ph.D.^[Department of Epidemiology and Biostatistics, Saint Louis University.[steve.rigdon@slu.edu](steve.rigdon@slu.edu)]
+#- Karen C. Davis, Ph.D.^[Department of Computer Science and Software Engineering, Miami University.[davisk4@miamioh.edu](davisk4@miamioh.edu)]
+#- Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
 date: "`r Sys.Date()`"
 output:
   rmdformats::readthedown:
@@ -20,7 +21,7 @@ output:
     number_sections: yes
     fig_caption: yes
     includes:
-      after_body: footer.html
+#      after_body: footer.html
 link-citations: yes
 linkcolor: blue
 bibliography: ref.bib
@@ -95,9 +96,13 @@ pacman::p_load(
   ClusterR, RColorBrewer, rmdformats, ggcal, gtools)
 ```
 
-In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This website serves as the supplementary materials to create reproducible examples in the manuscript **Bridging the Gap between the Different Research Streams of Crash Risk Modeling: a Review and Perspective on the Divide between Statistical and Optimization Approaches**. It has been submitted to _[Transportation Research Part C: Emerging Technologies](https://www.journals.elsevier.com/transportation-research-part-c-emerging-technologies)_. 
+In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This website serves as the supplementary materials to create reproducible examples in the manuscript 
 
-This vignette includes examples on the following five aspects:
+- > Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 1 - Data Collection, Exploration and Explanatory/Predictive Modeling.
+
+- > Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 2 - Integrating Two Research Streams
+
+They have been submitted to _[Sensors](https://www.mdpi.com/journal/sensors)_. This vignette includes examples on the following five aspects:
 
 1. **Bibliographic analysis**:  Bibliometric Summary for Transportation Safety, Bibliographic Network Matrices - Journal Names, keyword co-occurrences network, a Conceptual Structure Map
 2. **Extracting online transportation safety data**: Crash-related data, traffic flow data, and weather data.
@@ -552,11 +557,14 @@ For a detailed explanation on interpreting the results of a Poisson regression, 
 
 # Optimization
 
-Since optimization code is mostly Python-based, we do not provide code on the optimization section here. Should the readers have interest in this part, they can contact Qiong, Amir, and Alex.
+Since optimization code is mostly Python-based, we do not provide code on the optimization section here. Should the readers have interest in this part, they can contact our optimization collaborators.
 
 # Acknowledgement{-}
 
+This work is supported by different funding sources. We do not reveal them here for anonymous peer-review process.
+<!--
 This work was supported in part by  the National Science Foundation (CMMI-1635927 and CMMI-1634992), the Ohio Supercomputer Center (PMIU0138 and PMIU0162), the American Society of Safety Professionals (ASSP) Foundation, the University of Cincinnati Education and Research Center Pilot Research Project Training Program, and the Transportation Informatics Tier I University Transportation Center (TransInfo). We also thank the DarkSky API for providing us five million free calls to their weather database.
+-->
 
 # References {#references .unnumbered}
 
