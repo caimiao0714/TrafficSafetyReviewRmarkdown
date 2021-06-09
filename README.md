@@ -1,4 +1,4 @@
-# Supplementary materials for large truck safety review
+# Supplementary materials for data analytic applications in road traffic safety review
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3598001.svg)](https://doi.org/10.5281/zenodo.3598001)
 
