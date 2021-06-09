@@ -1,16 +1,15 @@
 ---
-title: "Supplemental Materials - Large Truck Safety Review"
+title: "Supplemental Materials - A Review of Data Analytic Applications in Road Traffic Safety. Part 1: Descriptive and Predictive Modeling"
 author: 
-- Author names not revealed for peer-review process
-#- Qiong Hu, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University. [qzh0011@auburn.edu](mailto:qzh0011@auburn.edu)]
-#- Amir Mehdizadeh, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
-#- Nasrin Mohabbati Kalejahi, M.Eng.^[Department of Industrial and Systems Engineering, Auburn University.[nzm0030@auburn.edu](nzm0030@auburn.edu)]
-#- Mohammad Ali Alamdar Yazdi, Ph.D.^[Carey Business School, Johns Hopkins University[mza0052@auburn.edu](mailto:mza0052@auburn.edu)]
-#- Miao Cai, M.S.^[Department of Epidemiology and Biostatistics, Saint Louis University. [miao.cai@slu.edu](mailto:miao.cai@slu.edu)]
-#- Aleksandr Vinel, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University.[alexander.vinel@auburn.edu](mailto:alexander.vinel@auburn.edu)]
-#- Steven E. Rigdon, Ph.D.^[Department of Epidemiology and Biostatistics, Saint Louis University.[steve.rigdon@slu.edu](steve.rigdon@slu.edu)]
-#- Karen C. Davis, Ph.D.^[Department of Computer Science and Software Engineering, Miami University.[davisk4@miamioh.edu](davisk4@miamioh.edu)]
-#- Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
+- Amir Mehdizadeh, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University.  Email address [azm0127@auburn.edu](mailto:azm0127@auburn.edu)]
+- Miao Cai, Ph.D.^[Department of Epidemiology, School of Public Health, Sun Yat-sen University. [miao.cai@outlook.com](mailto:miao.cai@outlook.com)]
+- Qiong Hu, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University. [qzh0011@auburn.edu](mailto:qzh0011@auburn.edu)]
+- Mohammad Ali Alamdar Yazdi, Ph.D.^[Carey Business School, Johns Hopkins University[mza0052@auburn.edu](mailto:mza0052@auburn.edu)]
+- Nasrin Mohabbati Kalejahi, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University.[nzm0030@auburn.edu](nzm0030@auburn.edu)]
+- Aleksandr Vinel, Ph.D.^[Department of Industrial and Systems Engineering, Auburn University.[alexander.vinel@auburn.edu](mailto:alexander.vinel@auburn.edu)]
+- Steven E. Rigdon, Ph.D.^[Department of Epidemiology and Biostatistics, Saint Louis University.[steve.rigdon@slu.edu](steve.rigdon@slu.edu)]
+- Karen C. Davis, Ph.D.^[Department of Computer Science and Software Engineering, Miami University.[davisk4@miamioh.edu](davisk4@miamioh.edu)]
+- Fadel M. Megahed, Ph.D.^[Farmer School of Business, Miami University. Email address [fmegahed@miamioh.edu](mailto:fmegahed@miamioh.edu).]
 date: "`r Sys.Date()`"
 output:
   rmdformats::readthedown:
@@ -96,13 +95,11 @@ pacman::p_load(
   ClusterR, RColorBrewer, rmdformats, ggcal, gtools)
 ```
 
-In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This website serves as the supplementary materials to create reproducible examples in the manuscript 
+In this review paper, we attempt to provide a comprehensive review on transportation research and optimization models. This website serves as the supplementary materials to create reproducible examples in the review paper: 
 
-- > Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 1 - Data Collection, Exploration and Explanatory/Predictive Modeling.
+> Mehdizadeh, A.; Cai, M.; Hu, Q.; Alamdar Yazdi, M.A.; Mohabbati-Kalejahi, N.; Vinel, A.; Rigdon, S.E.; Davis, K.C.; Megahed, F.M. [A Review of Data Analytic Applications in Road Traffic Safety. Part 1: Descriptive and Predictive Modeling](https://www.mdpi.com/1424-8220/20/4/1107). Sensors 2020, 20, 1107.
 
-- > Bridging the Gap between Optimization and Statistical Modeling of Large Truck Safety: Part 2 - Integrating Two Research Streams
-
-They have been submitted to _[Sensors](https://www.mdpi.com/journal/sensors)_. This vignette includes examples on the following five aspects:
+This vignette includes examples on the following five aspects:
 
 1. **Bibliographic analysis**:  Bibliometric Summary for Transportation Safety, Bibliographic Network Matrices - Journal Names, keyword co-occurrences network, a Conceptual Structure Map
 2. **Extracting online transportation safety data**: Crash-related data, traffic flow data, and weather data.
@@ -415,8 +412,9 @@ Hourly vehicle counts data is used in this example. It provides the number of ve
 It is almost impossible to understand raw data and also discover interesting patterns in it by just looking at 8760 (370 * 24) data cells. Hence, K-means clustering method is utilized here to present data in a more understandable format. K-means clustering is a common technique to explore data and discover patterns by grouping similar data to predefined (k) number of clusters. K-means clustering aims to group data into k clusters in a way to minimize the within-cluster sum of squares (WCSS). To find the optimal number of clusters, we have used a method that was suggested  by @pham2005selection. According to the following graph two is the best number of clusters to group this data.
 
 ```{r}
-trafficflow.df <- readr::read_csv("data/georgia-TFdata-station-121-5505-Yr2015.csv")
-trafficflow.df$Date <- as.Date(trafficflow.df$Date, format='%d-%b')
+trafficflow.df = "data/georgia-TFdata-station-121-5505-Yr2015.csv" %>% 
+  readr::read_csv() %>% 
+  mutate(Date = lubridate::dmy(paste0(Date, '-2015')))
 
 opt = Optimal_Clusters_KMeans(
   as.data.frame(trafficflow.df[,4:27]), max_clusters = 10, 
@@ -437,8 +435,9 @@ table(trafficflow.df$cluster.num)
 Now, k-means clustering can be applied. The output of this step is a column which its value is either one or two,indicating that each row of data (day) belongs to cluster one or two. Now data is divided into two groups. However, still we need to transfer data to a visual format to somehow validate and guide the clustering process. Since our data contains temporal information, we have used Cluster Calendar View visualization technique which is introduced by @van1999cluster. In this technique, a calendar represents the temporal information of data and by using color coding, differences between clusters are distinguished. The following graph shows a cluster calendar view for our data. It clearly has found meaningful patterns in the vehicle counts data. Weekends and weekdays have different traffic patterns. Besides, it has captured some of the holidays. For example, the 4th of July (Independence Day) which is a weekday, is colored by light blue. It means that this day has a similar traffic pattern with weekends. In addition, the clustering method has identified other holidays like Martin Luther King Day, Memorial Day, Labor Day, Thanksgiving Day and Christmas Day.
 
 ```{r}
+Sys.setlocale(locale="English")
 col.brewer.pal <- brewer.pal(11, "Paired")
-p2 <- ggcal(trafficflow.df$Date,trafficflow.df$cluster.num) + 
+p2 <- ggcal(trafficflow.df$Date, trafficflow.df$cluster.num) + 
   theme(legend.position="top") +
   scale_fill_manual(values = c("1"=col.brewer.pal[1], "2"=col.brewer.pal[2]))
 p2
@@ -557,14 +556,15 @@ For a detailed explanation on interpreting the results of a Poisson regression, 
 
 # Optimization
 
-Since optimization code is mostly Python-based, we do not provide code on the optimization section here. Should the readers have interest in this part, they can contact our optimization collaborators.
+Since optimization code is mostly Python-based, we do not provide code on the optimization section here. Should the readers have interest in this part, they can contact our optimization collaborators or refer to [the supplementary materials for the part 2 of our review](https://caimiao0714.github.io/optimization_stats_case_study/). The part 2 of the review (optimization section) is:
+
+> Hu, Q.; Cai, M.; Mohabbati-Kalejahi, N.; Mehdizadeh, A.; Alamdar Yazdi, M.A.; Vinel, A.; Rigdon, S.E.; Davis, K.C.; Megahed, F.M. [A Review of Data Analytic Applications in Road Traffic Safety. Part 2: Prescriptive Modeling](https://www.mdpi.com/1424-8220/20/4/1096). Sensors 2020, 20, 1096
 
 # Acknowledgement{-}
 
-This work is supported by different funding sources. We do not reveal them here for anonymous peer-review process.
-<!--
+
 This work was supported in part by  the National Science Foundation (CMMI-1635927 and CMMI-1634992), the Ohio Supercomputer Center (PMIU0138 and PMIU0162), the American Society of Safety Professionals (ASSP) Foundation, the University of Cincinnati Education and Research Center Pilot Research Project Training Program, and the Transportation Informatics Tier I University Transportation Center (TransInfo). We also thank the DarkSky API for providing us five million free calls to their weather database.
--->
+
 
 # References {#references .unnumbered}
 
